@@ -19,14 +19,15 @@ const shell = require('shelljs');
  //shell.exec(comandToExecute, {silent:true}).stdout;
  //you need little improvisation
  shell.exec('rm -rf ./hfc-key-store/*')
-
- //
+ 
+//
 var fabric_client = new Fabric_Client();
 var fabric_ca_client = null;
 var admin_user = null;
 var member_user = null;
 var store_path = path.join(__dirname, 'hfc-key-store');
 console.log(' Store path:'+store_path);
+
 
 // create the key value store as defined in the fabric-client/config/default.json 'key-value-store' setting
 Fabric_Client.newDefaultKeyValueStore({ path: store_path
@@ -44,7 +45,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
     	verify: false
     };
     // be sure to change the http to https when the CA is running TLS enabled
-    fabric_ca_client = new Fabric_CA_Client('http://localhost:7054', tlsOptions , 'ca.example.com', crypto_suite);
+    fabric_ca_client = new Fabric_CA_Client('http://localhost:7054', tlsOptions , 'ca-org1', crypto_suite);
 
     // first check to see if the admin is already enrolled
     return fabric_client.getUserContext('admin', true);
