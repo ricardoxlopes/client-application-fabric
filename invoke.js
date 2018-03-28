@@ -13,23 +13,31 @@ var path = require('path');
 var util = require('util');
 var os = require('os');
 
-var value = process.argv.slice(2)[0];
+var argPath = process.argv.slice(2)[0];
+var argChannel = process.argv.slice(2)[1];
+var argPeer = process.argv.slice(2)[2];
+var argOrderer = process.argv.slice(2)[3];
+var argUser = process.argv.slice(2)[4];
+var argChaincodeId = process.argv.slice(2)[5];
+var argFcn = process.argv.slice(2)[6];
+var argInvokeArguments = process.argv.slice(2)[7];
+var argPeerEvent = process.argv.slice(2)[8];
 
-console.log("ARGS: ",value)
+console.log('args: ',argPath,argChannel,argPeer,argOrderer,argUser,argChaincodeId,argFcn,argInvokeArguments,argPeerEvent)
 
 //
 var fabric_client = new Fabric_Client();
 
 // setup the fabric network
-var channel = fabric_client.newChannel('mychannel4');
-var peer = fabric_client.newPeer('grpc://localhost:12051');
+var channel = fabric_client.newChannel(argChannel);
+var peer = fabric_client.newPeer(argPeer);
 channel.addPeer(peer);
-var order = fabric_client.newOrderer('grpc://localhost:7050')
+var order = fabric_client.newOrderer(argOrderer)
 channel.addOrderer(order);
 
 //
 var member_user = null;
-var store_path = path.join(__dirname, 'hfc-key-store1');
+var store_path = path.join(__dirname, argPath);
 console.log('Store path:'+store_path);
 var tx_id = null;
 
@@ -46,7 +54,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 	fabric_client.setCryptoSuite(crypto_suite);
 
 	// get the enrolled user from persistence, this user will sign all requests
-	return fabric_client.getUserContext('user1', true);
+	return fabric_client.getUserContext(argUser, true);
 }).then((user_from_store) => {
 	if (user_from_store && user_from_store.isEnrolled()) {
 		console.log('Successfully loaded user1 from persistence');
@@ -62,11 +70,12 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 	// createCar chaincode function - requires 5 args, ex: args: ['CAR12', 'Honda', 'Accord', 'Black', 'Tom'],
 	// changeCarOwner chaincode function - requires 2 args , ex: args: ['CAR10', 'Dave'],
 	// must send the proposal to endorsing peers
+	console.log(argInvokeArguments)
 	var request = {
 		//targets: let default to the peer assigned to the client
-		chaincodeId: 'mycc',
-		fcn: 'invoke',
-		args: ['a','b',value],
+		chaincodeId: argChaincodeId,
+		fcn: argFcn,
+		args: JSON.parse(argInvokeArguments),
 		txId: tx_id
 	};
 
@@ -106,7 +115,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 		// get an eventhub once the fabric client has a user assigned. The user
 		// is required bacause the event registration must be signed
 		let event_hub = fabric_client.newEventHub();
-		event_hub.setPeerAddr('grpc://localhost:12053');
+		event_hub.setPeerAddr(argPeerEvent);
 
 		// using resolve the promise so that result status may be processed
 		// under the then clause rather than having the catch clause process
