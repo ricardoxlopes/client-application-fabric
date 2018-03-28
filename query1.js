@@ -16,9 +16,8 @@ var os = require('os');
 //
 var fabric_client = new Fabric_Client();
 
-
 // setup the fabric network
-var channel = fabric_client.newChannel('mychannel1');
+var channel = fabric_client.newChannel('mychannel4');
 var peer = fabric_client.newPeer('grpc://localhost:12051');
 
 // var cenas={
@@ -39,12 +38,12 @@ channel.addPeer(peer);
 
 //
 var member_user = null;
-var store_path = path.join(__dirname, 'hfc-key-store');
-//console.log('Store path:'+store_path);
+var store_path = path.join(__dirname, 'hfc-key-store1');
+console.log('Store path:'+store_path);
 var tx_id = null;
 
 // create the key value store as defined in the fabric-client/config/default.json 'key-value-store' setting
-var res = Fabric_Client.newDefaultKeyValueStore({ path: store_path
+Fabric_Client.newDefaultKeyValueStore({ path: store_path
 }).then((state_store) => {
 	// assign the store to the fabric client
 	fabric_client.setStateStore(state_store);
@@ -56,13 +55,13 @@ var res = Fabric_Client.newDefaultKeyValueStore({ path: store_path
 	fabric_client.setCryptoSuite(crypto_suite);
 
 	// get the enrolled user from persistence, this user will sign all requests
-	return fabric_client.getUserContext('user', true);
+	return fabric_client.getUserContext('user1', true);
 }).then((user_from_store) => {
 	if (user_from_store && user_from_store.isEnrolled()) {
-		// console.log('Successfully loaded user1 from persistence');
+		console.log('Successfully loaded user1 from persistence');
 		member_user = user_from_store;
 	} else {
-		throw new Error('Failed to get user.... run registerUser.js');
+		throw new Error('Failed to get user1.... run registerUser.js');
 	}
 
 	// queryCar chaincode function - requires 1 argument, ex: args: ['CAR4'],
@@ -71,20 +70,19 @@ var res = Fabric_Client.newDefaultKeyValueStore({ path: store_path
 		//targets : --- letting this default to the peers assigned to the channel
 		chaincodeId: 'mycc',
 		fcn: 'query',
-		args: ['a']
+		args: ['b']
 	};
 
 	// send the query proposal to the peer
 	return channel.queryByChaincode(request);
 }).then((query_responses) => {
-	//console.log("Query has completed, checking results");
+	console.log("Query has completed, checking results");
 	// query_responses could have more than one  results if there multiple peers were used as targets
 	if (query_responses && query_responses.length == 1) {
 		if (query_responses[0] instanceof Error) {
 			console.error("error from query = ", query_responses[0]);
 		} else {
-			console.log(query_responses[0].toString());
-			return query_responses[0].toString();
+			console.log("Response is ", query_responses[0].toString());
 		}
 	} else {
 		console.log("No payloads were returned from query");
@@ -92,4 +90,3 @@ var res = Fabric_Client.newDefaultKeyValueStore({ path: store_path
 }).catch((err) => {
 	console.error('Failed to query successfully :: ' + err);
 });
-

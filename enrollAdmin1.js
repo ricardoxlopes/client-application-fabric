@@ -15,26 +15,17 @@ var path = require('path');
 var util = require('util');
 var os = require('os');
 
-var argPath = process.argv.slice(2)[0];
-var argCaUrl = process.argv.slice(2)[1];
-var argCaName = process.argv.slice(2)[2];
-var argMspid = process.argv.slice(2)[3];
-
-console.log('args: ',argPath,argCaUrl,argCaName,argMspid)
-
 const shell = require('shelljs');
  //shell.exec(comandToExecute, {silent:true}).stdout;
  //you need little improvisation
- var execCommand='rm -rf ./'+argPath+'/*'
-
- shell.exec(execCommand)
+shell.exec('rm -rf ./hfc-key-store1/*')
  
 //
 var fabric_client = new Fabric_Client();
 var fabric_ca_client = null;
 var admin_user = null;
 var member_user = null;
-var store_path = path.join(__dirname,argPath);
+var store_path = path.join(__dirname, 'hfc-key-store1');
 console.log(' Store path:'+store_path);
 
 
@@ -54,7 +45,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
     	verify: false
     };
     // be sure to change the http to https when the CA is running TLS enabled
-    fabric_ca_client = new Fabric_CA_Client(argCaUrl, tlsOptions , argCaName, crypto_suite);
+    fabric_ca_client = new Fabric_CA_Client('http://localhost:10054', tlsOptions , 'ca-Pl', crypto_suite);
     
     // first check to see if the admin is already enrolled
     return fabric_client.getUserContext('admin', true);
@@ -72,7 +63,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
           console.log('Successfully enrolled admin user "admin"');
           return fabric_client.createUser(
               {username: 'admin',
-                  mspid: argMspid,
+                  mspid: 'Pl1MSP',
                   cryptoContent: { privateKeyPEM: enrollment.key.toBytes(), signedCertPEM: enrollment.certificate }
               });
         }).then((user) => {

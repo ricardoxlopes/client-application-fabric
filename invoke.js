@@ -13,19 +13,23 @@ var path = require('path');
 var util = require('util');
 var os = require('os');
 
+var value = process.argv.slice(2)[0];
+
+console.log("ARGS: ",value)
+
 //
 var fabric_client = new Fabric_Client();
 
 // setup the fabric network
-var channel = fabric_client.newChannel('mychannel');
-var peer = fabric_client.newPeer('grpc://localhost:7051');
+var channel = fabric_client.newChannel('mychannel4');
+var peer = fabric_client.newPeer('grpc://localhost:12051');
 channel.addPeer(peer);
 var order = fabric_client.newOrderer('grpc://localhost:7050')
 channel.addOrderer(order);
 
 //
 var member_user = null;
-var store_path = path.join(__dirname, 'hfc-key-store');
+var store_path = path.join(__dirname, 'hfc-key-store1');
 console.log('Store path:'+store_path);
 var tx_id = null;
 
@@ -60,10 +64,9 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 	// must send the proposal to endorsing peers
 	var request = {
 		//targets: let default to the peer assigned to the client
-		chaincodeId: 'fabcar',
-		fcn: '',
-		args: [''],
-		chainId: 'mychannel',
+		chaincodeId: 'mycc',
+		fcn: 'invoke',
+		args: ['a','b',value],
 		txId: tx_id
 	};
 
@@ -103,7 +106,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 		// get an eventhub once the fabric client has a user assigned. The user
 		// is required bacause the event registration must be signed
 		let event_hub = fabric_client.newEventHub();
-		event_hub.setPeerAddr('grpc://localhost:7053');
+		event_hub.setPeerAddr('grpc://localhost:12053');
 
 		// using resolve the promise so that result status may be processed
 		// under the then clause rather than having the catch clause process
