@@ -67,7 +67,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 
     return fabric_ca_client.enroll({enrollmentID: argUser, enrollmentSecret: secret});
 }).then((enrollment) => {
-  console.log('Successfully enrolled member user "user" ');
+  console.log('Successfully enrolled member user ',argUser);
   return fabric_client.createUser(
      {username: argUser,
      mspid: argMspid,

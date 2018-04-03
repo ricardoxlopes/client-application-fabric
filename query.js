@@ -13,8 +13,6 @@ var path = require('path');
 var util = require('util');
 var os = require('os');
 
-//console.log("ENTROU")
-
 var argPath = process.argv.slice(2)[0];
 var argChannel = process.argv.slice(2)[1];
 var argPeer = process.argv.slice(2)[2];
@@ -23,32 +21,14 @@ var argChaincodeId = process.argv.slice(2)[4];
 var argFcn = process.argv.slice(2)[5];
 var argQueryArguments = process.argv.slice(2)[6];
 
-//console.log('args: ',argPath,argChannel,argPeer,argUser,argChaincodeId,argFcn,argQueryArguments)
-
-//
 var fabric_client = new Fabric_Client();
 
 // setup the fabric network
 var channel = fabric_client.newChannel(argChannel);
 var peer = fabric_client.newPeer(argPeer);
 
-// var cenas={
-// 	targets: peer,
-// 	chaincodePath: "github.com/hyperledger/fabric/examples/chaincode/go",
-// 	chaincodeId: "mycc",
-// 	chaincodeVersion: "1.0"
-// }
-
-// fabric_client.installChaincode(cenas).then((a) => {
-
-// 	console.log(a)
-// }).catch((err) => {
-// 	console.error('Failedd ' + err);
-// });
-
 channel.addPeer(peer);
 
-//
 var member_user = null;
 var store_path = path.join(__dirname, argPath);
 //console.log('Store path:'+store_path);
@@ -75,8 +55,7 @@ var res = Fabric_Client.newDefaultKeyValueStore({ path: store_path
 	} else {
 		throw new Error('Failed to get user.... run registerUser.js');
 	}
-	// queryCar chaincode function - requires 1 argument, ex: args: ['CAR4'],
-	// queryAllCars chaincode function - requires no arguments , ex: args: [''],
+	
 	const request = {
 		//targets : --- letting this default to the peers assigned to the channel
 		chaincodeId: argChaincodeId,

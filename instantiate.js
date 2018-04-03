@@ -5,7 +5,7 @@
 * SPDX-License-Identifier: Apache-2.0
 */
 /*
- * Chaincode Invoke
+ * Chaincode query
  */
 
 var Fabric_Client = require('fabric-client');
@@ -19,13 +19,12 @@ var argPeer = process.argv.slice(2)[2];
 var argOrderer = process.argv.slice(2)[3];
 var argUser = process.argv.slice(2)[4];
 var argChaincodeId = process.argv.slice(2)[5];
-var argFcn = process.argv.slice(2)[6];
-var argInvokeArguments = process.argv.slice(2)[7];
-var argPeerEvent = process.argv.slice(2)[8];
+var argInstantiateArguments = process.argv.slice(2)[6];
+var argPeerEvent = process.argv.slice(2)[7];
+var argVersion = process.argv.slice(2)[8];
 
-console.log('args: ',argPath,argChannel,argPeer,argOrderer,argUser,argChaincodeId,argFcn,argInvokeArguments,argPeerEvent)
+console.log('args: ',argPath,argChannel,argPeer,argOrderer,argUser,argChaincodeId,argInstantiateArguments,argPeerEvent,argVersion)
 
-//
 var fabric_client = new Fabric_Client();
 
 // setup the fabric network
@@ -35,9 +34,8 @@ channel.addPeer(peer);
 var order = fabric_client.newOrderer(argOrderer)
 channel.addOrderer(order);
 
-//
 var member_user = null;
-var store_path = path.join(__dirname, argPath);
+var store_path = path.join(__dirname,argPath);
 console.log('Store path:'+store_path);
 var tx_id = null;
 
@@ -63,25 +61,16 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 		throw new Error('Failed to get ',argUser,' .... run registerUser.js');
 	}
 
-	// get a transaction id object based on the current user assigned to fabric client
-	tx_id = fabric_client.newTransactionID();
-	console.log("Assigning transaction_id: ", tx_id._transaction_id);
+    tx_id = fabric_client.newTransactionID();
 
-	// createCar chaincode function - requires 5 args, ex: args: ['CAR12', 'Honda', 'Accord', 'Black', 'Tom'],
-	// changeCarOwner chaincode function - requires 2 args , ex: args: ['CAR10', 'Dave'],
-	// must send the proposal to endorsing peers
-	console.log(argInvokeArguments)
-	var request = {
-		//targets: let default to the peer assigned to the client
-		chaincodeId: argChaincodeId,
-		fcn: argFcn,
-		args: JSON.parse(argInvokeArguments),
-		txId: tx_id
-	};
+    var request={
+        chaincodeId: argChaincodeId,
+        chaincodeVersion: argVersion,
+        txId: tx_id,
+        args: argInstantiateArguments
+    };
 
-	// send the transaction proposal to the peers
-	return channel.sendTransactionProposal(request);
-	
+    return channel.sendInstantiateProposal(request);
 }).then((results) => {
 	var proposalResponses = results[0];
 	var proposal = results[1];
@@ -170,5 +159,5 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 		console.log('Transaction failed to be committed to the ledger due to ::'+results[1].event_status);
 	}
 }).catch((err) => {
-	console.error('Failed to invoke successfully :: ' + err);
+	console.error('Failed to instantiate successfully :: ' + err);
 });
