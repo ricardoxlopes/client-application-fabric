@@ -15,8 +15,7 @@
     "screencast": "node ./tasks/screencast.js",
     "screencast:error": "svg-term --cast jyu19xGl88FQ3poMY8Hbmfw8y --out screencast-error.svg --window --at 12000 --no-cursor",
     "test": "cd packages/react-scripts && node bin/react-scripts.js test --env=jsdom",
-    "format": "prettier --trailing-comma es5 --single-quote --write 'packages/*/*.js' 'packages/*/!(node_modules)/**/*.js'",
-    "precommit": "lint-staged"
+    "format": "prettier --trailing-comma es5 --single-quote --write 'packages/*/*.js' 'packages/*/!(node_modules)/**/*.js'"
   },
   "devDependencies": {
     "eslint": "4.15.0",
@@ -33,7 +32,8 @@
   },
   "lint-staged": {
     "*.js": [
-      "eslint --fix", "git add"
+      "prettier --trailing-comma es5 --single-quote --write",
+      "git add"
     ],
     "yarn.lock": [
       "git rm --cached"
