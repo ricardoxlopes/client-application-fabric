@@ -6,7 +6,6 @@ var boot = require('loopback-boot');
 var app = loopback();
 
 app.start = function() {
-
   // start the web server
   return app.listen(function() {
     app.emit('started');

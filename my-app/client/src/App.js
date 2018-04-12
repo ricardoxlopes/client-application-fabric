@@ -1,25 +1,26 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import { Navbar, Jumbotron, Button } from 'react-bootstrap';
+// import update from 'react-addons-update';
+import update from 'immutability-helper';
 //import './App.css';
 
 class App extends Component {
-  state ='';
+  state = {orgs: '', records: ''};
 
   componentDidMount() {
-    this.callApi()
-      .then(res => this.setState(res))
+    this.initialization()
+      .then(res => this.setState({
+          orgs: update(this.state.orgs,{$set: res })
+        }))
       .catch(err => console.log(err));
   }
 
-  callApi = async () => {
-    const response = await fetch('/api/BlockchainClis/status');
-
+  initialization = async () => {
+    const response = await fetch('/api/BlockchainClis/init');
     var body = await response.json();
-
     if (response.status !== 200) throw Error(body.message);
-    
-    return body.status;
+    return body.orgs;
   };
 
   render() {
@@ -35,7 +36,7 @@ class App extends Component {
               </button>
               <a class="navbar-brand" href="#">GlinttChain</a>
             </div>
-            <div id="navbar" class="navbar-collapse collapse"  style={{'margin-right': '10px'}}>
+            {/* <div id="navbar" class="navbar-collapse collapse"  style={{'margin-right': '10px'}}>
               <ul class="nav navbar-nav navbar-right">
                 <li><a href="#">Dashboard</a></li>
                 <li><a href="#">Settings</a></li>
@@ -44,20 +45,20 @@ class App extends Component {
               <form class="navbar-form navbar-right">
                 <input type="text" class="form-control" placeholder="Search..."/>
               </form>
-            </div>
+            </div> */}
         </nav>
       
       <div class="container-fluid" style={{'margin-top': '50px'}}>
       <div class="row">
         <div class="col-sm-12 col-md-12 ">
-          <h1 class="page-header">Dashboard</h1>
+          <h1 class="page-header">Organizations</h1>
           {<div className="App-intro">
-            <Organizations orgs={this.state} />
+            <Organizations orgs={this.state.orgs} />
           </div>}
           <h2 class="sub-header"> Health Records </h2>
           <div class="table-responsive">
           {<div className="App-intro">
-            <HealthRecords orgs={this.state} />
+            <HealthRecords orgs={this.state.orgs} />
           </div>}
           </div>
         </div>
@@ -81,8 +82,8 @@ class Organizations extends React.Component {
               var indexi=index+1
               console.log(index,index[1][value+1])
               return (
-              <div class="col-xs-6 col-sm-3 placeholder">
-                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail"/>
+              <div class="col-xs-6 col-sm-3 placeholder" style={{'margin-bottom': '10px'}}>
+                <img src={logo} width="150" height="150" class="img-responsive" alt="Generic placeholder thumbnail"/>
                 <h4>{index[1][value+1]}</h4>
                 <span class="text-muted">Description</span>
               </div>

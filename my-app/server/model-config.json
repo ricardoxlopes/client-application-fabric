@@ -38,5 +38,9 @@
   "BlockchainCli": {
     "dataSource": "db",
     "public": true
+  },
+  "glinttChain": {
+    "dataSource": "db",
+    "public": true
   }
 }

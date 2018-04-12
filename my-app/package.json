@@ -6,12 +6,10 @@
     "node": ">=4"
   },
   "scripts": {
-    "lint": "eslint .",
     "prestart": "npm run --prefix client build",
     "start": "node .",
-    "start-dev": "concurrently \"nodemon .\" \"cd client && npm start\"",
-    "postinstall": "npm install --prefix client",
-    "posttest": "npm run lint &amp;&amp; nsp check"
+    "dev": "concurrently \"nodemon .\" \"cd client && npm start\"",
+    "postinstall": "npm install --prefix client"
   },
   "dependencies": {
     "compression": "^1.0.3",
@@ -25,8 +23,6 @@
     "strong-error-handler": "^2.0.0"
   },
   "devDependencies": {
-    "eslint": "^3.17.1",
-    "eslint-config-loopback": "^8.0.0",
     "nsp": "^2.1.0"
   },
   "repository": {
