@@ -6,22 +6,24 @@ const invokeLedgerModule = require('../../client-sdk-fabric/invoke');
 
 module.exports = function(Blockchaincli) {
   Blockchaincli.initialize = function(cb) {
-
+      var channelNames
       enrollAdminModule.enrollAdminUser('store-Path','http://localhost:10054','ca-Pl','Pl1MSP').then(() => {
-      return registerUserModule.registerUser('store-Path','http://localhost:10054','user1','Pl1MSP')
+      return registerUserModule.registerUser('store-Path','http://localhost:10054','user2','Pl1MSP')
       }).then(() => {
-        return queryLedgerModule.queryLedger('store-Path','mychannel1','grpc://localhost:12051','user1','cscc','GetChannels','[]')
-      }).then((promise) => {
+        return queryLedgerModule.queryLedger('store-Path','mychannel4','grpc://localhost:12051','user2','cscc','GetChannels','[]')
+      }).then((channels) => {
         //newline and page break
-        var channelNames=promise.split('\n\f\n\n')
+        channelNames=channels.split('\n\f\n\n')
         channelNames.shift()
-        channelNames.forEach(function(currentValue,index){
-
-        channelNames[index]={ [index+1] : channelNames[index] }
-       });
-
-      cb(null, { orgs: channelNames});
-  });
+        // channelNames.forEach(function(currentValue,index){
+        //    channelNames[index]=+channelNames[index]+"\""
+        // }); 
+        return queryLedgerModule.queryLedger('store-Path','mychannel1','grpc://localhost:12051','user2','mycc','query','["record1"]')
+      }).then((resRecords) => {
+        //console.log(JSON.stringify({ "orgs": channelNames, "records": records}))
+        cb(null,JSON.stringify({ orgs: channelNames,records: resRecords}))//, records: resRecords})//, records: {"a":"a","b":"b"}});
+      })
+  
     // queryLedgerModule.queryLedger('store-Path','mychannel1','grpc://localhost:12051','user4','cscc','GetChannels','[]');
 
     // queryLedgerModule.queryLedger('store-Path','mychannel1','grpc://localhost:12051','user4','mycc','query','["record1"]');
@@ -38,14 +40,36 @@ module.exports = function(Blockchaincli) {
    
   };
 
+Blockchaincli.getOrgRecords = function(org,cb) {
+    queryLedgerModule.queryLedger('store-Path',org,'grpc://localhost:12051','user1','mycc','query','["record1"]')
+      .then((records) => {
+        console.log(records)
+        cb(null,JSON.stringify(records));
+      }); 
+};
+
   Blockchaincli.remoteMethod('initialize', {
     http: {
       path: '/init',
-      verb: 'get',
-      status: 200,
+      verb: 'get'
     },
     returns: {
-      arg: 'orgs',
+      arg: 'info',
+      type: 'string',
+    },
+  });
+
+  Blockchaincli.remoteMethod('getOrgRecords', {
+    http: {
+      path: '/records',
+      verb: 'post'
+    },
+    accepts: {
+      arg: 'org',
+      type: 'string'
+    },
+    returns: {
+      arg: 'records',
       type: 'string',
     },
   });

@@ -8,33 +8,38 @@ import update from 'immutability-helper';
 class App extends Component {
   state = {orgs: '', records: ''};
 
+  //TODO rever a inicialização json, e fazer o que esta para o records para o orgs
+  //json.parse() do orgs
+  
   componentDidMount() {
+ 
     this.initialization()
       .then(res => this.setState({
-          orgs: update(this.state.orgs,{$set: res })
+          orgs: update(this.state.orgs,{$set: JSON.parse(res)["orgs"] }),
+          records: update(this.state.records,{$set: JSON.parse(res)["records"] })
         }))
       .catch(err => console.log(err));
   }
 
   initialization = async () => {
     const response = await fetch('/api/BlockchainClis/init');
-    var body = await response.json();
+    var body = await response.json()
     if (response.status !== 200) throw Error(body.message);
-    return body.orgs;
+    return body.info;
   };
 
   render() {
     return (
       <div>
-        <nav class="navbar navbar-inverse navbar-fixed-top">
-            <div class="navbar-header">
-              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
+        <nav className="navbar navbar-inverse navbar-fixed-top">
+            <div className="navbar-header">
+              <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span className="sr-only">Toggle navigation</span>
+                <span className="icon-bar"></span>
+                <span className="icon-bar"></span>
+                <span className="icon-bar"></span>
               </button>
-              <a class="navbar-brand" href="#">GlinttChain</a>
+              <a className="navbar-brand" href="#">GlinttChain</a>
             </div>
             {/* <div id="navbar" class="navbar-collapse collapse"  style={{'margin-right': '10px'}}>
               <ul class="nav navbar-nav navbar-right">
@@ -48,17 +53,17 @@ class App extends Component {
             </div> */}
         </nav>
       
-      <div class="container-fluid" style={{'margin-top': '50px'}}>
-      <div class="row">
-        <div class="col-sm-12 col-md-12 ">
-          <h1 class="page-header">Organizations</h1>
+      <div className="container-fluid" style={{'marginTop': '50px'}}>
+      <div className="row">
+        <div className="col-sm-12 col-md-12 ">
+          <h1 className="page-header">Organizations</h1>
           {<div className="App-intro">
             <Organizations orgs={this.state.orgs} />
           </div>}
-          <h2 class="sub-header"> Health Records </h2>
-          <div class="table-responsive">
+          <h2 className="sub-header"> Health Records </h2>
+          <div className="table-responsive">
           {<div className="App-intro">
-            <HealthRecords orgs={this.state.orgs} />
+            <HealthRecords records={this.state.records} />
           </div>}
           </div>
         </div>
@@ -72,20 +77,43 @@ class App extends Component {
 class Organizations extends React.Component {
   constructor(props) {
     super(props);
+    this.name="default"
   }
+
+  getOrgRecords = async (org) => {
+    const response = await fetch(
+    '/api/BlockchainClis/records',
+    { method: 'post', 
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({org: org})});
+
+    var body = await response.json();
+    if (response.status !== 200) throw Error(body.message);
+    return body.records;
+  };
+
+  handleClick = (org) => {
+    this.getOrgRecords(org)
+      .then(res => this.setState({
+          records: update(this.state.records,{$set: res })
+        }))
+      .catch(err => console.log(err));
+  }
+
   render() {
     return (
-      <div class="row placeholders">
+      <div className="row placeholders">
           { this.props && this.props.orgs &&
-            Object.entries(this.props.orgs['orgs']).map((index,value) => {
-              var org=this.props.orgs['orgs']
-              var indexi=index+1
-              console.log(index,index[1][value+1])
+            Object.entries(this.props.orgs).map((value,index) => {
+              console.log(index,value[1])
               return (
-              <div class="col-xs-6 col-sm-3 placeholder" style={{'margin-bottom': '10px'}}>
-                <img src={logo} width="150" height="150" class="img-responsive" alt="Generic placeholder thumbnail"/>
-                <h4>{index[1][value+1]}</h4>
-                <span class="text-muted">Description</span>
+              <div key={index} className="col-xs-6 col-sm-3 placeholder" style={{'marginBottom': '10px'}} onClick={() => this.handleClick(value[1])}>
+                <img src={logo} width="150" height="150" className="img-responsive" alt="Generic placeholder thumbnail"/>
+                <h4>{value[1]}</h4>
+                <span className="text-muted">Description</span>
               </div>
             )})
           }
@@ -100,33 +128,27 @@ class Organizations extends React.Component {
   }
   render() {
     return (
-      <table class="table table-striped">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Header1</th>
-                    <th>Header2</th>
-                    <th>Header3</th>
-                    <th>Header4</th>
-                  </tr>
-                </thead>
-                <tbody>
-          { this.props && this.props.orgs &&
-            Object.entries(this.props.orgs['orgs']).map((index,value) => {
-              var org=this.props.orgs['orgs']
-              var indexi=index+1
-              console.log(index,index[1][value+1])
+      <table className="table table-striped">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Prop1</th>
+            <th>Prop2</th>
+          </tr>
+        </thead>
+        <tbody>
+          { this.props && this.props.records &&
+            Object.entries(this.props.records).map((value,index) => {
+              console.log(value[1],index)//,index[1][value+1])
               return (
-                  <tr>
-                    <td>{indexi[0]}</td>
-                    <td>{index[1][value+1]}Info</td>
-                    <td>{index[1][value+1]}Info</td>
-                    <td>{index[1][value+1]}Info</td>
-                    <td>{index[1][value+1]}Info</td>
+                  <tr key={index}>
+                    <td>{index+1}</td>
+                    <td>{value[1]}Info</td>
+                    <td>FROM: TO: </td>
                   </tr>
             )})
           }
-          </tbody>
+        </tbody>
       </table>
      );
    }

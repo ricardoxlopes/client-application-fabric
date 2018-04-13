@@ -16,17 +16,35 @@ function queryLedger(
 ){
   return new Promise((resolve,reject) => {
 
-  // setup the fabric network
-  var channel = fabric_client.newChannel(argChannel);
-  var peer = fabric_client.newPeer(argPeer);
+  var channel=null
 
-  channel.addPeer(peer);
+  try{
+    channel = fabric_client.newChannel(argChannel)
+  }catch(e){
+    console.log("QUESTO CHANNEL")
+    channel = fabric_client.getChannel(argChannel)
+  }
+
+  var peer=null
+
+  peer = fabric_client.newPeer(argPeer);
+
+  //check if peer was instantiated
+  channel.getPeers().forEach(peeri => {
+      if (peeri.getUrl() == argPeer){
+        peer=false
+      }
+  })
+
+  if (peer !== false){
+    channel.addPeer(peer);
+  }
 
   var member_user = null;
   var store_path = path.join(__dirname, argPath);
 
   // create the key value store
-  var res = Fabric_Client.newDefaultKeyValueStore({
+  Fabric_Client.newDefaultKeyValueStore({
     path: store_path,
   })
     .then(state_store => {
@@ -44,8 +62,9 @@ function queryLedger(
     })
     .then(user_from_store => {
       if (user_from_store && user_from_store.isEnrolled()) {
-        console.log('Successfully loaded' + argUser + 'from persistence');
+        console.log('Successfully loaded ' + argUser + ' from persistence');
         member_user = user_from_store;
+        
       } else {
         throw new Error('Failed to get user.... run registerUser.js');
       }
@@ -70,10 +89,12 @@ function queryLedger(
           resolve(query_responses[0].toString())
         } 
       } else {
+        reject(err)
         console.log('No payloads were returned from query');
       }
     })
     .catch(err => {
+      reject(err)
       console.error('Failed to query successfully :: ' + err);
     });
 })};
