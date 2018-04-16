@@ -39,7 +39,7 @@ class App extends Component {
                 <span className="icon-bar"></span>
                 <span className="icon-bar"></span>
               </button>
-              <a className="navbar-brand" href="#">GlinttChain</a>
+              <a className="navbar-brand" href="#">gChain</a>
             </div>
             {/* <div id="navbar" class="navbar-collapse collapse"  style={{'margin-right': '10px'}}>
               <ul class="nav navbar-nav navbar-right">
@@ -62,9 +62,9 @@ class App extends Component {
           </div>}
           <h2 className="sub-header"> Health Records </h2>
           <div className="table-responsive">
-          {<div className="App-intro">
+          {/* {<div className="App-intro">
             <HealthRecords records={this.state.records} />
-          </div>}
+          </div>} */}
           </div>
         </div>
       </div>

@@ -8,9 +8,9 @@ module.exports = function(Blockchaincli) {
   Blockchaincli.initialize = function(cb) {
       var channelNames
       enrollAdminModule.enrollAdminUser('store-Path','http://localhost:10054','ca-Pl','Pl1MSP').then(() => {
-      return registerUserModule.registerUser('store-Path','http://localhost:10054','user2','Pl1MSP')
+      return registerUserModule.registerUser('store-Path','http://localhost:10054','user1','Pl1MSP')
       }).then(() => {
-        return queryLedgerModule.queryLedger('store-Path','mychannel4','grpc://localhost:12051','user2','cscc','GetChannels','[]')
+        return queryLedgerModule.queryLedger('store-Path','mychannel4','grpc://localhost:12051','user1','cscc','GetChannels','[]')
       }).then((channels) => {
         //newline and page break
         channelNames=channels.split('\n\f\n\n')
@@ -18,7 +18,7 @@ module.exports = function(Blockchaincli) {
         // channelNames.forEach(function(currentValue,index){
         //    channelNames[index]=+channelNames[index]+"\""
         // }); 
-        return queryLedgerModule.queryLedger('store-Path','mychannel1','grpc://localhost:12051','user2','mycc','query','["record1"]')
+        return queryLedgerModule.queryLedger('store-Path','mychannel1','grpc://localhost:12051','user1','mycc','rich_query','[{"selector":{"_id":"record1"}}]')
       }).then((resRecords) => {
         //console.log(JSON.stringify({ "orgs": channelNames, "records": records}))
         cb(null,JSON.stringify({ orgs: channelNames,records: resRecords}))//, records: resRecords})//, records: {"a":"a","b":"b"}});
@@ -41,7 +41,7 @@ module.exports = function(Blockchaincli) {
   };
 
 Blockchaincli.getOrgRecords = function(org,cb) {
-    queryLedgerModule.queryLedger('store-Path',org,'grpc://localhost:12051','user1','mycc','query','["record1"]')
+    queryLedgerModule.queryLedger('store-Path',org,'grpc://localhost:12051','user1','mycc','rich_query','["record1"]')
       .then((records) => {
         console.log(records)
         cb(null,JSON.stringify(records));

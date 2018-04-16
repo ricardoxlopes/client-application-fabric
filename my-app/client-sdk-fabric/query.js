@@ -21,7 +21,6 @@ function queryLedger(
   try{
     channel = fabric_client.newChannel(argChannel)
   }catch(e){
-    console.log("QUESTO CHANNEL")
     channel = fabric_client.getChannel(argChannel)
   }
 
@@ -73,7 +72,7 @@ function queryLedger(
         //targets : --- letting this default to the peers assigned to the channel
         chaincodeId: argChaincodeId,
         fcn: argFcn,
-        args: JSON.parse(argQueryArguments),
+        args: JSON.parse(argQueryArguments)//argQueryArguments),
       };
 
       return channel.queryByChaincode(request);
@@ -86,6 +85,7 @@ function queryLedger(
           reject(err)
           console.error('error from query = ', query_responses[0]);
         } else {
+          console.log(query_responses[0].toString())
           resolve(query_responses[0].toString())
         } 
       } else {
