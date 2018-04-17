@@ -4,26 +4,73 @@ const registerUserModule = require('../../client-sdk-fabric/registerUser');
 const queryLedgerModule = require('../../client-sdk-fabric/query');
 const invokeLedgerModule = require('../../client-sdk-fabric/invoke');
 
-module.exports = function(Blockchaincli) {
-  Blockchaincli.initialize = function(cb) {
-      var channelNames
-      enrollAdminModule.enrollAdminUser('store-Path','http://localhost:10054','ca-Pl','Pl1MSP').then(() => {
-      return registerUserModule.registerUser('store-Path','http://localhost:10054','user1','Pl1MSP')
-      }).then(() => {
-        return queryLedgerModule.queryLedger('store-Path','mychannel4','grpc://localhost:12051','user1','cscc','GetChannels','[]')
-      }).then((channels) => {
-        //newline and page break
-        channelNames=channels.split('\n\f\n\n')
-        channelNames.shift()
-        // channelNames.forEach(function(currentValue,index){
-        //    channelNames[index]=+channelNames[index]+"\""
-        // }); 
-        return queryLedgerModule.queryLedger('store-Path','mychannel1','grpc://localhost:12051','user1','mycc','rich_query','[{"selector":{"_id":"record1"}}]')
-      }).then((resRecords) => {
-        //console.log(JSON.stringify({ "orgs": channelNames, "records": records}))
-        cb(null,JSON.stringify({ orgs: channelNames,records: resRecords}))//, records: resRecords})//, records: {"a":"a","b":"b"}});
+module.exports = function (Blockchaincli) {
+
+  function generateRequest(requests) {
+    var res = []
+
+    for (let i = 0; i < requests.length; i++) {
+      const request = {
+        //targets : --- letting this default to the peers assigned to the channel
+        chaincodeId: requests[i].argChaincodeId,
+        fcn: requests[i].argFcn,
+        args: [requests[i].argQueryArguments]
+      };
+      res.push(request)
+    }
+    return res;
+  };
+
+  //valores HARCODED TODO //provavelmente dá erro se a ordem não for a correta
+  //é preciso saber destinguir o ledger pessoal dos não pessoais
+  Blockchaincli.initialize = function (cb) {
+    var channelNames=[]
+    var privateLedger="mychannel4"
+
+    enrollAdminModule.enrollAdminUser('store-Path', 'http://localhost:10054', 'ca-Pl', 'Pl1MSP').then(() => {
+      return registerUserModule.registerUser('store-Path', 'http://localhost:10054', 'user1', 'Pl1MSP')
+    }).then(() => {
+      requests = generateRequest([{ argChaincodeId: "cscc", argFcn: "GetChannels", argQueryArguments: "[]" }])
+
+      return queryLedgerModule.queryLedger({
+        argPath: 'store-Path',
+        argChannels: [privateLedger],
+        argPeer: 'grpc://localhost:12051',
+        argUser: 'user1',
+        argRequests: requests
+      });
+    }).then((channels) => {
+      //newline and page break
+      channelNames = channels[0].split('\n\f\n\n')
+      channelNames.shift()
+      // channelNames.forEach(function(currentValue,index){
+      //    channelNames[index]=+channelNames[index]+"\""
+      // });
+      var requestArray = []
+
+      for (let i = 0; i < channelNames.length; i++)
+        requestArray.push({ argChaincodeId: "mycc", argFcn: "query", argQueryArguments: "info" })
+
+      requestArray.push(
+          { argChaincodeId: "mycc", argFcn: "rich_query", argQueryArguments: JSON.stringify({ "selector": { "_id": { "$gt": null } } }) })
+      
+      requests = generateRequest(requestArray);
+
+      var requestChannels = channelNames.slice();
+      requestChannels.push(privateLedger)
+
+      return queryLedgerModule.queryLedger({
+        argPath: 'store-Path',
+        argChannels: requestChannels,
+        argPeer: 'grpc://localhost:12051',
+        argUser: 'user1',
+        argRequests: requests 
       })
-  
+    }).then((info) => {
+      console.log(JSON.stringify({ orgs: [info[0], info[1], info[2],info[3]], channels: channelNames, records: info[4] }))
+      cb(null, JSON.stringify({ orgs: [info[0], info[1], info[2],info[3]], channels: channelNames, records: info[4] }))
+    })
+
     // queryLedgerModule.queryLedger('store-Path','mychannel1','grpc://localhost:12051','user4','cscc','GetChannels','[]');
 
     // queryLedgerModule.queryLedger('store-Path','mychannel1','grpc://localhost:12051','user4','mycc','query','["record1"]');
@@ -37,16 +84,23 @@ module.exports = function(Blockchaincli) {
     // queryLedgerModule.queryLedger('store-Path','mychannel1','grpc://localhost:12051','user4','mycc','query','["record1"]');
     // queryLedgerModule.queryLedger('store-Path','mychannel4','grpc://localhost:12051','user4','mycc','query','["recordOrg1ToPl1"]');
     // queryLedgerModule.queryLedger('store-Path','mychannel3','grpc://localhost:12051','user4','mycc','query','["record1Pl1ToOrg3"]');
-   
+
   };
 
-Blockchaincli.getOrgRecords = function(org,cb) {
-    queryLedgerModule.queryLedger('store-Path',org,'grpc://localhost:12051','user1','mycc','rich_query','["record1"]')
-      .then((records) => {
-        console.log(records)
-        cb(null,JSON.stringify(records));
-      }); 
-};
+  Blockchaincli.getOrgRecords = function (channel, cb) {
+
+    requests = generateRequest([{ argChaincodeId: "mycc", argFcn: "rich_query", argQueryArguments: JSON.stringify({ "selector": { "_id": { "$gt": null } } }) }])
+      
+    queryLedgerModule.queryLedger({
+      argPath: 'store-Path',
+      argChannels: [channel],
+      argPeer: 'grpc://localhost:12051',
+      argUser: 'user1',
+      argRequests: requests 
+    }).then((records) => {
+        cb(null, JSON.stringify(records));
+    });
+  };
 
   Blockchaincli.remoteMethod('initialize', {
     http: {
