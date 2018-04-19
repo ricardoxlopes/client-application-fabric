@@ -21,11 +21,10 @@ module.exports = function (Blockchaincli) {
     return res;
   };
 
-  //valores HARCODED TODO //provavelmente dá erro se a ordem não for a correta
-  //é preciso saber destinguir o ledger pessoal dos não pessoais
+  //valores HARCODED TODO
   Blockchaincli.initialize = function (cb) {
-    var channelNames=[]
-    var privateLedger="mychannel4"
+    var channelNames = []
+    var privateLedger = "mychannel4"
 
     enrollAdminModule.enrollAdminUser('store-Path', 'http://localhost:10054', 'ca-Pl', 'Pl1MSP').then(() => {
       return registerUserModule.registerUser('store-Path', 'http://localhost:10054', 'user1', 'Pl1MSP')
@@ -43,17 +42,15 @@ module.exports = function (Blockchaincli) {
       //newline and page break
       channelNames = channels[0].split('\n\f\n\n')
       channelNames.shift()
-      // channelNames.forEach(function(currentValue,index){
-      //    channelNames[index]=+channelNames[index]+"\""
-      // });
+
       var requestArray = []
 
       for (let i = 0; i < channelNames.length; i++)
         requestArray.push({ argChaincodeId: "mycc", argFcn: "query", argQueryArguments: "info" })
 
       requestArray.push(
-          { argChaincodeId: "mycc", argFcn: "rich_query", argQueryArguments: JSON.stringify({ "selector": { "_id": { "$gt": null } } }) })
-      
+        { argChaincodeId: "mycc", argFcn: "rich_query", argQueryArguments: JSON.stringify({ "selector": { "_id": { "$gt": null } } }) })
+
       requests = generateRequest(requestArray);
 
       var requestChannels = channelNames.slice();
@@ -64,11 +61,11 @@ module.exports = function (Blockchaincli) {
         argChannels: requestChannels,
         argPeer: 'grpc://localhost:12051',
         argUser: 'user1',
-        argRequests: requests 
+        argRequests: requests
       })
     }).then((info) => {
-      console.log(JSON.stringify({ orgs: [info[0], info[1], info[2],info[3]], channels: channelNames, records: info[4] }))
-      cb(null, JSON.stringify({ orgs: [info[0], info[1], info[2],info[3]], channels: channelNames, records: info[4] }))
+      console.log(JSON.stringify({ orgs: [info[0], info[1], info[2], info[3]], channels: channelNames, records: info[4] }))
+      cb(null, JSON.stringify({ orgs: [info[0], info[1], info[2], info[3]], channels: channelNames, records: info[4] }))
     })
 
     // queryLedgerModule.queryLedger('store-Path','mychannel1','grpc://localhost:12051','user4','cscc','GetChannels','[]');
@@ -90,15 +87,34 @@ module.exports = function (Blockchaincli) {
   Blockchaincli.getOrgRecords = function (channel, cb) {
 
     requests = generateRequest([{ argChaincodeId: "mycc", argFcn: "rich_query", argQueryArguments: JSON.stringify({ "selector": { "_id": { "$gt": null } } }) }])
-      
+
     queryLedgerModule.queryLedger({
       argPath: 'store-Path',
       argChannels: [channel],
       argPeer: 'grpc://localhost:12051',
       argUser: 'user1',
-      argRequests: requests 
+      argRequests: requests
     }).then((records) => {
-        cb(null, JSON.stringify(records));
+      cb(null, JSON.stringify(records));
+    });
+  };
+
+  Blockchaincli.invoke = function (channel, record, cb) {
+    console.log("RECEIVED THIS CHANNEL: ",channel)
+    console.log("RECEIVED THIS RECORD: ",record)
+    invokeLedgerModule.invokeLedger({
+      argPath: 'store-Path',
+      argChannel: channel,
+      argPeer: 'grpc://localhost:12051',
+      argOrderer: 'grpc://localhost:7050',
+      argUser: 'user1',
+      argChaincodeId: 'mycc',
+      argFcn: 'invoke',
+      argInvokeArguments: record,
+      argPeerEvent: 'grpc://localhost:12053'
+    }).then((res) => {
+      console.log("THISTHISTHISTHOS",res)
+      cb(null, JSON.stringify(res));
     });
   };
 
@@ -119,11 +135,32 @@ module.exports = function (Blockchaincli) {
       verb: 'post'
     },
     accepts: {
-      arg: 'org',
+      arg: 'channel',
       type: 'string'
     },
     returns: {
       arg: 'records',
+      type: 'string',
+    },
+  });
+
+  Blockchaincli.remoteMethod('invoke', {
+    http: {
+      path: '/invoke',
+      verb: 'post'
+    },
+    accepts: [
+      {
+        arg: 'channel',
+        type: 'string'
+      },
+      {
+        arg: 'record',
+        type: 'string'
+      }
+    ],
+    returns: {
+      arg: 'res',
       type: 'string',
     },
   });

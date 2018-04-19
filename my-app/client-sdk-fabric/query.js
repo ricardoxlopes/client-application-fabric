@@ -10,7 +10,7 @@ function queryLedger(queryObject) {
 
     var member_user = null;
     var store_path = path.join(__dirname, queryObject.argPath);
-
+    
     // create the key value store
     Fabric_Client.newDefaultKeyValueStore({
       path: store_path,
