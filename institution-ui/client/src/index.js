@@ -9,6 +9,8 @@ import { createStore, applyMiddleware } from 'redux'
 import { createLogger } from 'redux-logger'
 import rootReducer from './reducers'
 import thunkMiddleware from 'redux-thunk'
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap/dist/css/bootstrap-theme.css';
 
 const loggerMiddleware = createLogger()
 
@@ -26,9 +28,5 @@ ReactDOM.render(
         <App />
     </Provider>,
     document.getElementById('root'));
-   
-// store
-//   .dispatch(fetchPatients())
-//   .then(() => console.log("store.getState()"))
 
 registerServiceWorker();

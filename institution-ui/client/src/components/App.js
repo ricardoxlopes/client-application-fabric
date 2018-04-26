@@ -3,12 +3,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import RecordsList from '../containers/RecordsList'
 import PatientsList from '../containers/PatientsList'
-import { fetchPatients,fetchRecords } from '../actions/index'
+import { fetchPatients, fetchRecords } from '../actions/index'
 
-let requestInitialData = function(dispatch) {
-   let onInit = function() {
+let requestInitialData = function (dispatch) {
+  let onInit = function () {
     dispatch(fetchPatients())
-   };
+  };
   return {
     onInit
   };
@@ -21,16 +21,27 @@ class App extends Component {
   }
 
   render() {
-    return (<div className="App">
-    <header className="App-header">
-      <h1 className="App-title">Welcome to React</h1>
-    </header>
-    <PatientsList/>
-    <RecordsList/>
-  </div>)
+    return (
+      <div className="App">
+        <nav className="navbar navbar-inverse navbar-fixed-top">
+          <div className="navbar-header">
+            <h3 style={{ 'marginLeft': '20px', 'color': 'white' }}>
+              <b>
+                <i> gChain </i>
+              </b>
+            </h3>
+          </div>
+        </nav>
+        <div className="container-fluid" style={{ 'marginTop': '50px' }}>
+          <h2 className="sub-header"> Patients </h2>
+          <PatientsList />
+          <h2 className="sub-header"> Records </h2>
+          <RecordsList />
+        </div>
+      </div>)
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.handler.onInit()
   }
 }

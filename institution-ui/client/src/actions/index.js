@@ -35,7 +35,7 @@ export const requestRecords = (patientId) => ({
 })
 export const receiveRecords = (jsonRecords) => ({
     type: RECEIVE_RECORDS,
-    records: JSON.parse(jsonRecords.info)["orgs"],
+    records: JSON.parse(jsonRecords.records),
     receivedAt: Date.now()
 })
 
@@ -46,19 +46,26 @@ export const selectPatient = (patientId) => ({
 export const requestPatients = () => ({
     type: REQUEST_PATIENTS
 })
-export const receivePatients = (jsonPatients) => ({
+export const receivePatients = (patients) => ({
     type: RECEIVE_PATIENTS,
-    patients: JSON.parse(jsonPatients.info)["orgs"],
+    patients: patients.patients,
     receivedAt: Date.now()
 })
 
-export function fetchRecords() {
+export function fetchRecords(channel) {
 
     return function (dispatch) {
+        dispatch(requestRecords(channel))
 
-        dispatch(requestRecords())
-
-        return fetch('/api/BlockchainClis/init')
+        return fetch('/api/BlockchainClis/records',{
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({channel}
+            ),
+          })
             .then(
                 response => response.json(),
 
@@ -87,7 +94,7 @@ export function fetchPatients() {
         // In this case, we return a promise to wait for.
         // This is not required by thunk middleware, but it is convenient for us.
 
-        return fetch('/api/BlockchainClis/init')
+        return fetch('/api/BlockchainClis/patients')
             .then(
                 response => response.json(),
                 // Do not use catch, because that will also catch

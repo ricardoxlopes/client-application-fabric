@@ -64,7 +64,7 @@ module.exports = function (Blockchaincli) {
         argRequests: requests
       })
     }).then((info) => {
-      console.log(JSON.stringify({ orgs: [info[0], info[1], info[2], info[3]], channels: channelNames, records: info[4] }))
+      // console.log(JSON.stringify({ orgs: [info[0], info[1], info[2], info[3]], channels: channelNames, records: info[4] }))
       cb(null, JSON.stringify({ orgs: [info[0], info[1], info[2], info[3]], channels: channelNames, records: info[4] }))
     })
 
@@ -83,25 +83,38 @@ module.exports = function (Blockchaincli) {
     // queryLedgerModule.queryLedger('store-Path','mychannel3','grpc://localhost:12051','user4','mycc','query','["record1Pl1ToOrg3"]');
 
   };
+//TODO FOR PATIENT
+  // Blockchaincli.getOrgRecords = function (channel, cb) {
 
+  //   console.log("COMMON",channel)
+  //   requests = generateRequest([{ argChaincodeId: "mycc", argFcn: "rich_query", argQueryArguments: JSON.stringify({ "selector": { "_id": { "$gt": null } } }) }])
+
+  //   queryLedgerModule.queryLedger({
+  //     argPath: 'store-Path',
+  //     argChannels: [channel],
+  //     argPeer: 'grpc://localhost:12051',
+  //     argUser: 'user1',
+  //     argRequests: requests
+  //   }).then((records) => {
+  //     cb(null, JSON.stringify(records));
+  //   });
+  // };
+//TODO FOR ORG
   Blockchaincli.getOrgRecords = function (channel, cb) {
-
     requests = generateRequest([{ argChaincodeId: "mycc", argFcn: "rich_query", argQueryArguments: JSON.stringify({ "selector": { "_id": { "$gt": null } } }) }])
 
     queryLedgerModule.queryLedger({
-      argPath: 'store-Path',
+      argPath: 'store-Path1',
       argChannels: [channel],
-      argPeer: 'grpc://localhost:12051',
-      argUser: 'user1',
+      argPeer: 'grpc://localhost:7051',
+      argUser: 'user2',
       argRequests: requests
     }).then((records) => {
-      cb(null, JSON.stringify(records));
+      cb(null, records);
     });
   };
 
   Blockchaincli.invoke = function (channel, record, cb) {
-    console.log("RECEIVED THIS CHANNEL: ",channel)
-    console.log("RECEIVED THIS RECORD: ",record)
     invokeLedgerModule.invokeLedger({
       argPath: 'store-Path',
       argChannel: channel,
@@ -113,10 +126,44 @@ module.exports = function (Blockchaincli) {
       argInvokeArguments: record,
       argPeerEvent: 'grpc://localhost:12053'
     }).then((res) => {
-      console.log("THISTHISTHISTHOS",res)
       cb(null, JSON.stringify(res));
     });
   };
+
+  Blockchaincli.getOrgPatients = function (cb) {
+    var channelNames = []
+    var privateLedger = "mychannel1"
+
+    enrollAdminModule.enrollAdminUser('store-Path1', 'http://localhost:7054', 'ca-org1', 'Org1MSP').then(() => {
+      return registerUserModule.registerUser('store-Path1', 'http://localhost:7054', 'user2', 'Org1MSP')
+    }).then(() => {
+      requests = generateRequest([{ argChaincodeId: "cscc", argFcn: "GetChannels", argQueryArguments: "[]" }])
+
+      return queryLedgerModule.queryLedger({
+        argPath: 'store-Path1',
+        argChannels: [privateLedger],
+        argPeer: 'grpc://localhost:7051',
+        argUser: 'user2',
+        argRequests: requests
+      });
+    }).then((channels) => {
+      //newline and page break
+      channelNames = channels[0].split('\n\f\n\n')
+      channelNames.shift()
+      cb(null,channelNames);
+    })
+  };
+
+  Blockchaincli.remoteMethod('getOrgPatients', {
+    http: {
+      path: '/patients',
+      verb: 'get'
+    },
+    returns: {
+      arg: 'patients',
+      type: 'string',
+    },
+  });
 
   Blockchaincli.remoteMethod('initialize', {
     http: {
