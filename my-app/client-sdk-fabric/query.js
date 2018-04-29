@@ -48,14 +48,14 @@ function queryLedger(queryObject) {
                 // query_responses could have more than one  results if there multiple peers were used as tqueryObject.argets
                 if (query_responses && query_responses.length == 1) {
                   if (query_responses[0] instanceof Error) {
-                    reject(err)
+                    reject(query_responses[0])
                     console.error('error from query = ', query_responses[0]);
                   } else {
                     queriesRes.push(query_responses[0].toString())
                     console.log(query_responses[0].toString())
                   }
                 } else {
-                  reject(err)
+                  reject(query_responses[0])
                   console.log('No payloads were returned from query');
                 }
               })

@@ -44,7 +44,6 @@ module.exports = function (Blockchaincli) {
       channelNames.shift()
 
       var requestArray = []
-
       for (let i = 0; i < channelNames.length; i++)
         requestArray.push({ argChaincodeId: "mycc", argFcn: "query", argQueryArguments: "info" })
 
@@ -52,8 +51,18 @@ module.exports = function (Blockchaincli) {
         { argChaincodeId: "mycc", argFcn: "rich_query", argQueryArguments: JSON.stringify({ "selector": { "_id": { "$gt": null } } }) })
 
       requests = generateRequest(requestArray);
-
+      //copy of array
       var requestChannels = channelNames.slice();
+
+      var index = requestChannels.indexOf(privateLedger);
+      
+      if (index > -1) {
+        requestChannels.splice(index, 1);
+      }
+      //copy of array
+      channelNames=requestChannels.slice()
+
+      requestChannels.push(privateLedger)
       requestChannels.push(privateLedger)
 
       return queryLedgerModule.queryLedger({
@@ -64,8 +73,11 @@ module.exports = function (Blockchaincli) {
         argRequests: requests
       })
     }).then((info) => {
-      // console.log(JSON.stringify({ orgs: [info[0], info[1], info[2], info[3]], channels: channelNames, records: info[4] }))
-      cb(null, JSON.stringify({ orgs: [info[0], info[1], info[2], info[3]], channels: channelNames, records: info[4] }))
+      //last element
+      var records=info.splice(-1, 1);
+      infoRecord=info.splice(-1, 1);
+      console.log({ orgs: info, channels: channelNames, walletRecords: [infoRecord[0],records[0]]})
+      cb(null, { orgs: info, channels: channelNames, walletRecords: [infoRecord[0],records[0],privateLedger]})
     })
 
     // queryLedgerModule.queryLedger('store-Path','mychannel1','grpc://localhost:12051','user4','cscc','GetChannels','[]');
@@ -83,36 +95,35 @@ module.exports = function (Blockchaincli) {
     // queryLedgerModule.queryLedger('store-Path','mychannel3','grpc://localhost:12051','user4','mycc','query','["record1Pl1ToOrg3"]');
 
   };
-//TODO FOR PATIENT
-  // Blockchaincli.getOrgRecords = function (channel, cb) {
-
-  //   console.log("COMMON",channel)
-  //   requests = generateRequest([{ argChaincodeId: "mycc", argFcn: "rich_query", argQueryArguments: JSON.stringify({ "selector": { "_id": { "$gt": null } } }) }])
-
-  //   queryLedgerModule.queryLedger({
-  //     argPath: 'store-Path',
-  //     argChannels: [channel],
-  //     argPeer: 'grpc://localhost:12051',
-  //     argUser: 'user1',
-  //     argRequests: requests
-  //   }).then((records) => {
-  //     cb(null, JSON.stringify(records));
-  //   });
-  // };
-//TODO FOR ORG
+  //TODO FOR PATIENT
   Blockchaincli.getOrgRecords = function (channel, cb) {
+
     requests = generateRequest([{ argChaincodeId: "mycc", argFcn: "rich_query", argQueryArguments: JSON.stringify({ "selector": { "_id": { "$gt": null } } }) }])
 
     queryLedgerModule.queryLedger({
-      argPath: 'store-Path1',
+      argPath: 'store-Path',
       argChannels: [channel],
-      argPeer: 'grpc://localhost:7051',
-      argUser: 'user2',
+      argPeer: 'grpc://localhost:12051',
+      argUser: 'user1',
       argRequests: requests
     }).then((records) => {
-      cb(null, records);
+      cb(null,records);
     });
   };
+  //TODO FOR ORG
+  // Blockchaincli.getOrgRecords = function (channel, cb) {
+  //   requests = generateRequest([{ argChaincodeId: "mycc", argFcn: "rich_query", argQueryArguments: JSON.stringify({ "selector": { "_id": { "$gt": null } } }) }])
+
+  //   queryLedgerModule.queryLedger({
+  //     argPath: 'store-Path1',
+  //     argChannels: [channel],
+  //     argPeer: 'grpc://localhost:7051',
+  //     argUser: 'user2',
+  //     argRequests: requests
+  //   }).then((records) => {
+  //     cb(null, records);
+  //   });
+  // };
 
   Blockchaincli.invoke = function (channel, record, cb) {
     invokeLedgerModule.invokeLedger({
@@ -150,7 +161,7 @@ module.exports = function (Blockchaincli) {
       //newline and page break
       channelNames = channels[0].split('\n\f\n\n')
       channelNames.shift()
-      cb(null,channelNames);
+      cb(null, channelNames);
     })
   };
 

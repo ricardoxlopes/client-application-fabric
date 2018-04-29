@@ -14,10 +14,24 @@ let requestInitialData = function (dispatch) {
   };
 }
 
-class App extends Component {
+class App extends Component  {
   constructor(props) {
     super(props);
     this.handler = requestInitialData(this.props.dispatch);
+    this.handleShow = this.handleShow.bind(this);
+    this.handleClose = this.handleClose.bind(this);
+
+    this.state = {
+      show: false
+    };
+  }
+
+  handleClose() {
+    this.setState({ show: false });
+  }
+
+  handleShow() {
+    this.setState({ show: true });
   }
 
   render() {
@@ -34,11 +48,12 @@ class App extends Component {
         </nav>
         <div className="container-fluid" style={{ 'marginTop': '50px' }}>
           <h2 className="sub-header"> Patients </h2>
-          <PatientsList />
+          <PatientsList state={this.state} handleShow={this.handleShow} handleClose={this.handleClose}/>
           <h2 className="sub-header"> Records </h2>
           <RecordsList />
         </div>
-      </div>)
+      </div>
+      )
   }
 
   componentDidMount() {

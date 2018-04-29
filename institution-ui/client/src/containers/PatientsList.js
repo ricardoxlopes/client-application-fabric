@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { fetchRecords } from '../actions'
+import { fetchRecords,clickAddRecord } from '../actions'
 import PatientsList from '../components/PatientsList'
 
 const mapStateToProps = state => ({
@@ -7,7 +7,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  onPatientClick: patientId => dispatch(fetchRecords("mychannel1"))
+  onPatientClick: patientId => dispatch(fetchRecords(patientId))
 })
 
 export default connect(

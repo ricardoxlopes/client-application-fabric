@@ -14,6 +14,7 @@ import fetch from 'cross-fetch'
  * action creators
  */
 
+
 export const addRecord = (channelId, record) => ({
     type: ADD_RECORD,
     channelId,
@@ -55,8 +56,8 @@ export const receivePatients = (patients) => ({
 export function fetchRecords(channel) {
 
     return function (dispatch) {
+        
         dispatch(requestRecords(channel))
-
         return fetch('/api/BlockchainClis/records',{
             method: 'POST',
             headers: {

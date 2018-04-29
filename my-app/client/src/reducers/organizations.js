@@ -1,22 +1,23 @@
-const patients = (state = {
+const organizations = (state = {
     isFetching: false,
-    patientSelected: "",
-    patients: [],
-    show: false
+    selectedOrg: null,
+    orgs: [],
+    channnels: []
 }, action) => {
     switch (action.type) {
-        case 'SELECT_PATIENT':
+        case 'SELECT_ORG':
             return Object.assign({}, state, {
-                patientSelected: action.patientId
+                selectedOrg: action.selectedOrg
             })
-        case 'REQUEST_PATIENTS':
+        case 'REQUEST_INIT_DATA':
             return Object.assign({}, state, {
                 isFetching: true
             })
-        case 'RECEIVE_PATIENTS':
+        case 'RECEIVE_ORGS':
             return Object.assign({}, state, {
-                isFetching: true,
-                patients: [action.patients],
+                isFetching: false,
+                orgs: action.orgs,
+                channels: action.channels,
                 receivedAt: action.receivedAt
             })
         default:
@@ -24,4 +25,4 @@ const patients = (state = {
     }
 }
 
-export default patients
+export default organizations
