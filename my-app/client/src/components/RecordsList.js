@@ -17,7 +17,7 @@ const RecordsList = ({ records, onRecordClick }) => {
                 </thead>
                 <tbody>
                     {records.records.map((record, index) => (
-                        <Record key={index} onClick={() => onRecordClick(record[0])} index={index} record={record} channels={records.channels} />
+                        <Record key={index} onClick={onRecordClick} index={index} record={record} selectedChannel={records.selectedChannel} channels={records.channels} orgsNames={records.orgsNames} />
                     ))}
                 </tbody>
             </table>

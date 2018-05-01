@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { selectRecord } from '../actions'
+import { invokeRecord } from '../actions'
 import RecordsList from '../components/RecordsList'
 
 const mapStateToProps = state => ({
@@ -7,7 +7,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  onRecordClick: record => dispatch(selectRecord(record))
+  onRecordClick: (record,channel) => dispatch(invokeRecord(record,channel))
 })
 
 export default connect(

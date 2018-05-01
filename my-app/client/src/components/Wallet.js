@@ -6,7 +6,7 @@ const Wallet = ({ wallet, onWalletClick }) => {
 
     if (wallet.wallet)
         return (
-            <div onClick={() => onWalletClick(wallet.wallet["name"])}>
+            <div onClick={() => onWalletClick(wallet.channel)}>
                 <img src={logo} className="img-responsive" alt="Generic placeholder thumbnail" />
                 <h4 className="text-center">{wallet.wallet["name"]}</h4>
             </div>

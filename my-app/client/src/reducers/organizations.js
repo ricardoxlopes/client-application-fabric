@@ -1,14 +1,10 @@
 const organizations = (state = {
     isFetching: false,
-    selectedOrg: null,
     orgs: [],
-    channnels: []
+    orgsNames: null,
+    channels: []
 }, action) => {
     switch (action.type) {
-        case 'SELECT_ORG':
-            return Object.assign({}, state, {
-                selectedOrg: action.selectedOrg
-            })
         case 'REQUEST_INIT_DATA':
             return Object.assign({}, state, {
                 isFetching: true
@@ -17,8 +13,13 @@ const organizations = (state = {
             return Object.assign({}, state, {
                 isFetching: false,
                 orgs: action.orgs,
+                orgsNames: action.orgsNames,
                 channels: action.channels,
                 receivedAt: action.receivedAt
+            })
+        case 'SELECT_ORG':
+            return Object.assign({}, state, {
+                isFetching: true
             })
         default:
             return state

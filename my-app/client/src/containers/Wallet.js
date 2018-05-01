@@ -7,7 +7,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  onWalletClick: (wallet) => dispatch(fetchRecords(wallet))
+  onWalletClick: channel => dispatch(fetchRecords(channel))
 })
 
 export default connect(

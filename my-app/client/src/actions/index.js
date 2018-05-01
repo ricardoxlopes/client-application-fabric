@@ -1,14 +1,14 @@
 import {
     TRANSACT_RECORD,
     SELECT_RECORDS,
+    REQUEST_RECORD_INVOKATION,
     REQUEST_RECORDS,
     RECEIVE_RECORDS,
     SELECT_ORG,
     REQUEST_INIT_DATA,
     RECEIVE_ORGS,
     SELECT_WALLET,
-    RECEIVE_WALLET,
-    RECEIVE_WALLET_RECORDS
+    RECEIVE_WALLET
 } from './actionTypes'
 import fetch from 'cross-fetch'
 
@@ -25,6 +25,9 @@ export const selectRecord = (recordId) => ({
     type: SELECT_RECORDS,
     recordId
 })
+export const requestRecordInvokation = () => ({
+    type: REQUEST_RECORD_INVOKATION
+})
 export const requestRecords = (patientId) => ({
     type: REQUEST_RECORDS,
     patientId
@@ -34,67 +37,112 @@ export const receiveRecords = (records) => ({
     records: JSON.parse(records),
     receivedAt: Date.now()
 })
-export const selectWallet = () => ({
-    type: SELECT_WALLET
+export const selectWallet = (channel) => ({
+    type: SELECT_WALLET,
+    channel
 })
 export const receiveWallet = (wallet) => ({
     type: RECEIVE_WALLET,
     walletInfo: JSON.parse(wallet[0]),
     walletRecords: JSON.parse(wallet[1]),
-    receivedAt: Date.now()
-})
-export const receiveWalletRecords = (records) => ({
-    type: RECEIVE_WALLET_RECORDS,
-    walletRecords: JSON.parse(records),
+    walletChannel: wallet[2],
     receivedAt: Date.now()
 })
 
-
-export const selectOrg = (selectedOrg) => ({
+export const selectOrg = (channel) => ({
     type: SELECT_ORG,
-    selectedOrg
+    channel
 })
 export const requestInitData = () => ({
     type: REQUEST_INIT_DATA
 })
-export const receiveOrgs = (orgs, channels) => ({
+export const receiveOrgs = (orgs, orgsNames, channels) => ({
     type: RECEIVE_ORGS,
     orgs,
+    orgsNames,
     channels,
     receivedAt: Date.now()
 })
 
-export function fetchWalletRecords(channel) {
+// export function fetchWalletRecords(channel) {
+
+//     return function (dispatch) {
+
+//         dispatch(requestRecords(channel))
+//         return fetch('/api/BlockchainClis/records', {
+//             method: 'POST',
+//             headers: {
+//                 Accept: 'application/json',
+//                 'Content-Type': 'application/json',
+//             },
+//             body: JSON.stringify({ channel }
+//             ),
+//         })
+//             .then(
+//                 response => response.json(),
+
+//                 error => console.log('An error occurred.', error)
+//             )
+//             .then(records => {
+//                 console.log("wllaet", records)
+//                 dispatch(receiveWalletRecords(records))
+//             }
+//             )
+//     }
+// }
+
+//   invoke = async (channel, record) => {
+//     const response = await fetch(
+//       '/api/BlockchainClis/invoke',
+//       {
+//         method: 'post',
+//         headers: {
+//           'Accept': 'application/json',
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({ channel: channel, record: record })
+//       });
+
+//     var body = await response.json();
+//     if (response.status !== 200) throw Error(body.message);
+//     return body.res;
+//   };
+
+export function invokeRecord(record, channel) {
 
     return function (dispatch) {
 
-        dispatch(requestRecords(channel))
-        return fetch('/api/BlockchainClis/records', {
+        dispatch(requestRecordInvokation())
+
+        return fetch('/api/BlockchainClis/invoke', {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ channel }
-            ),
+            body: JSON.stringify({ record: JSON.stringify(record["record"]), channel: channel }),
         })
             .then(
                 response => response.json(),
 
                 error => console.log('An error occurred.', error)
             )
-            .then(records =>
-         {       console.log("wllaet",records)
-                dispatch(receiveWalletRecords(records))}
+            .then(res => {
+                console.log(res)
+                // dispatch(recordInvoked(res))
+            }
             )
     }
 }
+
 
 export function fetchRecords(channel) {
 
     return function (dispatch) {
 
+        dispatch(selectOrg(channel))
         dispatch(requestRecords(channel))
+
         return fetch('/api/BlockchainClis/records', {
             method: 'POST',
             headers: {
@@ -109,9 +157,9 @@ export function fetchRecords(channel) {
 
                 error => console.log('An error occurred.', error)
             )
-            .then(records =>
-{                console.log(records.records)
-                dispatch(receiveRecords(records.records))}
+            .then(records => {
+                dispatch(receiveRecords(records.records))
+            }
             )
     }
 }
@@ -143,9 +191,9 @@ export function fetchInitData() {
             .then(data => {
                 // We can dispatch many times!
                 // Here, we update the app state with the results of the API call.
-                dispatch(receiveOrgs(data.info.orgs, data.info.channels))
+                dispatch(receiveOrgs(data.info.orgs,data.info.orgsNames,data.info.channels))
+                dispatch(selectOrg(data.info.walletRecords[2]))
                 dispatch(receiveWallet(data.info.walletRecords))
-                console.log(data.info.walletRecords[1])
             }
             )
     }

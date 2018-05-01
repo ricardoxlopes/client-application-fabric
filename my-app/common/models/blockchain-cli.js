@@ -76,8 +76,14 @@ module.exports = function (Blockchaincli) {
       //last element
       var records=info.splice(-1, 1);
       infoRecord=info.splice(-1, 1);
-      console.log({ orgs: info, channels: channelNames, walletRecords: [infoRecord[0],records[0]]})
-      cb(null, { orgs: info, channels: channelNames, walletRecords: [infoRecord[0],records[0],privateLedger]})
+      var orgsNames=[]
+
+      for (let index = 0; index < info.length; index++) {
+        orgsNames.push(JSON.parse(info[index])["org"])
+      }
+      
+      console.log({ orgs: info,orgsNames: orgsNames, channels: channelNames, walletRecords: [infoRecord[0],records[0],privateLedger]})
+      cb(null, { orgs: info,orgsNames: orgsNames, channels: channelNames, walletRecords: [infoRecord[0],records[0],privateLedger]})
     })
 
     // queryLedgerModule.queryLedger('store-Path','mychannel1','grpc://localhost:12051','user4','cscc','GetChannels','[]');
@@ -126,6 +132,7 @@ module.exports = function (Blockchaincli) {
   // };
 
   Blockchaincli.invoke = function (channel, record, cb) {
+    console.log("ARGS RECEIVED INVOKE:",channel,record)
     invokeLedgerModule.invokeLedger({
       argPath: 'store-Path',
       argChannel: channel,

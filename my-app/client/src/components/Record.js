@@ -1,7 +1,7 @@
 import React from 'react'
 import { SplitButton, MenuItem } from 'react-bootstrap';
 
-const Record = ({ onClick, record, channels, index }) => {
+const Record = ({ onClick, record, channels, index, selectedChannel,orgsNames }) => {
 
     return (<tr key={index}>
         <td style={{ 'verticalAlign': 'middle' }} >{index + 1}</td>
@@ -17,9 +17,10 @@ const Record = ({ onClick, record, channels, index }) => {
                 dropup
             >
                 {channels.map((channel, index) => {
-                    return (
-                        <MenuItem key={index} onSelect={() => this.handleClick(channels[index], this.currentRecord)}>{channels[index]}</MenuItem>
-                    )})
+                    if (channel !== selectedChannel)
+                        return (
+                            <MenuItem key={index} onSelect={() => onClick({record},channels[index])}>{orgsNames[index]}</MenuItem>
+                        )})
                 }
             </SplitButton>
         </td>

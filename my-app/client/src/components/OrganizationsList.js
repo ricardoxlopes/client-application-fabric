@@ -4,9 +4,9 @@ import { BeatLoader } from 'react-spinners';
 
 const OrganizationsList = ({ orgs, onOrgClick }) => {
 
-    if (orgs.orgs) {
-        return (orgs.orgs.map((org, index) => (
-            <Organization key={index} onClick={() => onOrgClick(orgs.channels[index])} index={index} data={JSON.parse(org)} />
+    if (orgs.orgsNames) {
+        return (orgs.orgsNames.map((orgName, index) => (
+            <Organization key={index} onClick={() => onOrgClick(orgs.channels[index])} index={index} name={orgName} />
         ))
         )
     }
