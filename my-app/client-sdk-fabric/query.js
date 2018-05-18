@@ -2,6 +2,7 @@ var Fabric_Client = require('fabric-client');
 var path = require('path');
 var util = require('util');
 var os = require('os');
+var fs = require('fs');
 
 var fabric_client = new Fabric_Client();
 
@@ -10,7 +11,7 @@ function queryLedger(queryObject) {
 
     var member_user = null;
     var store_path = path.join(__dirname, queryObject.argPath);
-    
+
     // create the key value store
     Fabric_Client.newDefaultKeyValueStore({
       path: store_path,
@@ -89,6 +90,7 @@ var getChannel = (queryObject, i) => {
       peer = false
     }
   })
+
 
   if (peer !== false) {
     channel.addPeer(peer);

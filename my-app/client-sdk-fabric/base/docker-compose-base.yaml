@@ -1,0 +1,26 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+services:
+  peer0.orgnew.example.com:
+    container_name: peer0.orgnew.example.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.orgnew.example.com
+      - CORE_PEER_ADDRESS=peer0.orgnew.example.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.orgnew.example.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.orgnew.example.com:7051
+      - CORE_PEER_LOCALMSPID=OrgNewMSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/orgnew.example.com/peers/peer0.orgnew.example.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/orgnew.example.com/peers/peer0.orgnew.example.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - 14051:7051
+      - 14053:7053

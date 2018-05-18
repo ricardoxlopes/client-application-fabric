@@ -5,16 +5,17 @@ var path = require('path');
 var util = require('util');
 var os = require('os');
 
-var fabric_client = new Fabric_Client();
+// var fabric_client = new Fabric_Client();
 var fabric_ca_client = null;
 var admin_user = null;
 var member_user = null;
 
-function registerUser(argPath, argCaUrl, argUser, argMspid){
+// registerObject={argPath, argCaUrl, argUser, argMspid,argAffiliation,argRole}
+function registerUser(registerObject, fabric_client){
 
   return new Promise((resolve,reject) => {
 
-  var store_path = path.join(__dirname, argPath);
+  var store_path = path.join(__dirname, registerObject.argPath);
   console.log(' Store path:' + store_path);
 
   // create the key value store as defined in the fabric-client/config/default.json 'key-value-store' setting
@@ -34,7 +35,7 @@ function registerUser(argPath, argCaUrl, argUser, argMspid){
         verify: false,
       };
       // be sure to change the http to https when the CA is running TLS enabled
-      fabric_ca_client = new Fabric_CA_Client(argCaUrl, null, '', crypto_suite);
+      fabric_ca_client = new Fabric_CA_Client(registerObject.argCaUrl, null, '', crypto_suite);
 
       // first check to see if the admin is already enrolled
       return fabric_client.getUserContext('admin', true);
@@ -46,30 +47,30 @@ function registerUser(argPath, argCaUrl, argUser, argMspid){
         throw new Error('Failed to get admin.... run enrollAdmin.js');
       }
 
-      return fabric_client.getUserContext(argUser, true);
+      return fabric_client.getUserContext(registerObject.argUser, true);
       }).then(user_from_store => {
         if (user_from_store && user_from_store.isEnrolled()) {
-          console.log('Successfully loaded '+argUser+' from persistence');
-          resolve(null)
+          console.log('Successfully loaded '+registerObject.argUser+' from persistence');
+          resolve(fabric_client)
         } else {
           // at this point we should have the admin user
           // first need to register the user with the CA server
           return fabric_ca_client.register(
-            { enrollmentID: argUser, affiliation: 'org1', role: 'client' },
+            { enrollmentID: registerObject.argUser, affiliation: registerObject.argAffiliation , role: registerObject.argRole},
             admin_user
           ).then(secret => {
             // next we need to enroll the user with CA server
             console.log('Successfully registered user - secret:' + secret);
   
             return fabric_ca_client.enroll({
-              enrollmentID: argUser,
+              enrollmentID: registerObject.argUser,
               enrollmentSecret: secret,
             });
           }).then(enrollment => {
-            console.log('Successfully enrolled member user ', argUser);
+            console.log('Successfully enrolled member user ', registerObject.argUser);
             return fabric_client.createUser({
-              username: argUser,
-              mspid: argMspid,
+              username: registerObject.argUser,
+              mspid: registerObject.argMspid,
               cryptoContent: {
                 privateKeyPEM: enrollment.key.toBytes(),
                 signedCertPEM: enrollment.certificate,
@@ -83,7 +84,7 @@ function registerUser(argPath, argCaUrl, argUser, argMspid){
               console.log(
                 'User was successfully registered and enrolled and is ready to intreact with the fabric network'
               );
-              resolve(null)
+              resolve(fabric_client)
               }).catch(err => {
                 reject(err)
                 console.error('Failed to register: ' + err);

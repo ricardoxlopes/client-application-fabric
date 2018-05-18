@@ -24,10 +24,10 @@ module.exports = function (Blockchaincli) {
   //valores HARCODED TODO
   Blockchaincli.initialize = function (cb) {
     var channelNames = []
-    var privateLedger = "mychannel4"
+    var privateLedger = "mychannel"
 
     enrollAdminModule.enrollAdminUser('store-Path', 'http://localhost:10054', 'ca-Pl', 'Pl1MSP').then(() => {
-      return registerUserModule.registerUser('store-Path', 'http://localhost:10054', 'user1', 'Pl1MSP')
+      return registerUserModule.registerUser('store-Path', 'http://localhost:10054', 'user1', 'Pl1MSP','org1','client')
     }).then(() => {
       requests = generateRequest([{ argChaincodeId: "cscc", argFcn: "GetChannels", argQueryArguments: "[]" }])
 
@@ -153,7 +153,7 @@ module.exports = function (Blockchaincli) {
     var privateLedger = "mychannel1"
 
     enrollAdminModule.enrollAdminUser('store-Path1', 'http://localhost:7054', 'ca-org1', 'Org1MSP').then(() => {
-      return registerUserModule.registerUser('store-Path1', 'http://localhost:7054', 'user2', 'Org1MSP')
+      return registerUserModule.registerUser('store-Path1', 'http://localhost:7054', 'user2', 'Org1MSP','org1','client')
     }).then(() => {
       requests = generateRequest([{ argChaincodeId: "cscc", argFcn: "GetChannels", argQueryArguments: "[]" }])
 

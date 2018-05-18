@@ -1,0 +1,113 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+volumes:
+  # orderer.example.com:
+  peer0.orgnew.example.com:
+  ca_orgNew:
+
+networks:
+  net5:
+
+services:
+
+  ca_orgNew:
+    image: hyperledger/fabric-ca:latest
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-orgNew
+      - FABRIC_CA_SERVER_TLS_ENABLED=false #TLSTODO
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.orgNew.example.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CANEW_PRIVATE_KEY
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.orgNew.example.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CANEW_PRIVATE_KEY -b admin:adminpw -d'
+    ports:
+      - "11054:7054"
+    volumes:
+      - ./crypto-config/peerOrganizations/orgnew.example.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_orgNew
+
+# orderer.example.com:
+#     extends:
+#       file:   base/docker-compose-base.yaml
+#       service: orderer.example.com
+#     container_name: orderer.example.com
+#     networks:
+#       - net5
+
+#   peer0.orgnew.example.com:
+#       container_name: peer0.orgnew.example.com
+#       extends:
+#         file:  base/docker-compose-base.yaml
+#         service: peer0.orgnew.example.com
+#       networks:
+#         - net5
+
+  
+#   couchdb10:
+#     container_name: couchdb10
+#     image: hyperledger/fabric-couchdb:latest
+#     # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
+#     # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
+#     environment:
+#       - COUCHDB_USER=
+#       - COUCHDB_PASSWORD=
+#     # Comment/Uncomment the port mapping if you want to hide/expose the CouchDB service,
+#     # for example map it to utilize Fauxton User Interface in dev environments.
+#     ports:
+#       - "12984:5984"
+#     networks:
+#       - net5
+
+# #TODO meter isto no peer0.orgnew.example.com
+#   peer0.orgnew.example.com:
+#     environment:
+#       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+#       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb10:12984
+#       # The CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME and CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD
+#       # provide the credentials for ledger to connect to CouchDB.  The username and password must
+#       # match the username and password set for the associated CouchDB.
+#       - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=
+#       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=
+#     depends_on:
+#       - couchdb10
+
+
+
+
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+networks:
+  byfn:
+
+services:
+  couchdb10:
+    container_name: couchdb10
+    image: hyperledger/fabric-couchdb
+    # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
+    # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
+    environment:
+      - COUCHDB_USER=
+      - COUCHDB_PASSWORD=
+    # Comment/Uncomment the port mapping if you want to hide/expose the CouchDB service,
+    # for example map it to utilize Fauxton User Interface in dev environments.
+    ports:
+      - "12984:5984"
+    networks:
+      - byfn
+
+  peer0.orgnew.example.com:
+    container_name: peer0.orgnew.example.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.orgnew.example.com
+    networks:
+      - byfn  

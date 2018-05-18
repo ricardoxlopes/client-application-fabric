@@ -1,0 +1,26 @@
+# # ---------------------------------------------------------------------------
+# # "OrdererOrgs" - Definition of organizations managing orderer nodes
+# # ---------------------------------------------------------------------------
+# OrdererOrgs:
+#   # ---------------------------------------------------------------------------
+#   # Orderer
+#   # ---------------------------------------------------------------------------
+#   - Name: OrdererNew
+#     Domain: example.com
+#     # ---------------------------------------------------------------------------
+#     # "Specs" - See PeerOrgs below for complete description
+#     # ---------------------------------------------------------------------------
+#     Specs:
+#       - Hostname: orderernew
+# ---------------------------------------------------------------------------
+# "PeerOrgs" - Definition of organizations managing peer nodes
+# ---------------------------------------------------------------------------
+
+PeerOrgs:
+- Name: OrgNew
+  Domain: orgnew.example.com
+  EnableNodeOUs: true
+  Template:
+    Count: 1
+  Users:
+    Count: 1

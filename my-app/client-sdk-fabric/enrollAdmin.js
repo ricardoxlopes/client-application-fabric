@@ -9,11 +9,13 @@ var fabric_client = new Fabric_Client();
 var fabric_ca_client = null;
 var admin_user = null;
 
-function enrollAdminUser(argPath, argCaUrl, argCaName, argMspid){
+//enrollObject={argPath, argCaUrl, argCaName, argMspid}
+
+function enrollAdminUser(enrollObject){
   
   return new Promise((resolve,reject) => {
 
-    var store_path = path.join(__dirname, argPath);
+    var store_path = path.join(__dirname, enrollObject.argPath);
     console.log(' Store path:' + store_path);
 
     // create the key value store
@@ -35,9 +37,9 @@ function enrollAdminUser(argPath, argCaUrl, argCaName, argMspid){
         };
         // be sure to change the http to https when the CA is running TLS enabled
         fabric_ca_client = new Fabric_CA_Client(
-          argCaUrl,
+          enrollObject.argCaUrl,
           tlsOptions,
-          argCaName,
+          enrollObject.argCaName,
           crypto_suite
         );
 
@@ -60,7 +62,7 @@ function enrollAdminUser(argPath, argCaUrl, argCaName, argMspid){
               console.log('Successfully enrolled admin user "admin"');
               return fabric_client.createUser({
                 username: 'admin',
-                mspid: argMspid,
+                mspid: enrollObject.argMspid,
                 cryptoContent: {
                   privateKeyPEM: enrollment.key.toBytes(),
                   signedCertPEM: enrollment.certificate,
@@ -86,7 +88,7 @@ function enrollAdminUser(argPath, argCaUrl, argCaName, argMspid){
           'Assigned the admin user to the fabric client ::' +
             admin_user.toString()
         );
-        resolve(null)
+        resolve(fabric_client)
       })
       .catch(err => {
         console.error('Failed to enroll admin: ' + err);

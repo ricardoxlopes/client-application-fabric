@@ -88,7 +88,7 @@ class App extends React.Component {
           </div>
           <div className="row col-sm-12 col-md-12" style={{ 'marginLeft': '10px' }}>
             <h2 className="sub-header"> Health Records </h2>
-              <RecordsList />
+              {/* <RecordsList /> */}
           </div>
         </div>
       </div>
