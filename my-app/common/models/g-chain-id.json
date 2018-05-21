@@ -1,6 +1,6 @@
 {
-  "name": "glinttChain",
-  "base": "User",
+  "name": "gChainId",
+  "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true

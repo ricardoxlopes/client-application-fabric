@@ -39,8 +39,8 @@
     "dataSource": "db",
     "public": true
   },
-  "glinttChain": {
-    "dataSource": "db",
+  "gChainId": {
+    "dataSource": "mySqlIds",
     "public": true
   }
 }

@@ -6,9 +6,11 @@
         "fabric-ca-client": "~1.1.0",
         "fabric-client": "~1.1.0",
         "grpc": "^1.6.0",
+        "mysql": "^2.15.0",
         "request": "^2.85.0",
         "shelljs": "^0.8.1",
         "superagent": "^3.8.3",
-        "superagent-promise": "^1.1.0"
+        "superagent-promise": "^1.1.0",
+        "uuid": "^3.2.1"
     }
 }
