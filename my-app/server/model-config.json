@@ -42,5 +42,9 @@
   "gChainId": {
     "dataSource": "mySqlIds",
     "public": true
+  },
+  "gChainRecords": {
+    "dataSource": null,
+    "public": true
   }
 }

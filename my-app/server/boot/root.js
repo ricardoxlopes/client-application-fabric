@@ -6,10 +6,6 @@ module.exports = function(server) {
   var router = server.loopback.Router();
   router.get('/', server.loopback.status());
 
-  // router.get('/ping', function(req, res) {
-  //   res.send({"key":"pong"});
-  // });
- 
   // var block = server.models.BlockchainCli;
 
   server.use(router);
