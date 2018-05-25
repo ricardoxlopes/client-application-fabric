@@ -5,6 +5,8 @@ const uuidv1 = require('uuid/v1')
 var token = require('token');
 var bcrypt = require('bcrypt');
 
+//TODO handle exceptions
+
 module.exports = function (Gchainid) {
   var con = mysql.createConnection("mysql://b09d80e3b40bed:0c7bf03e@eu-cdbr-west-02.cleardb.net/heroku_b8116f21146b486?reconnect=true");
   //token expiring time

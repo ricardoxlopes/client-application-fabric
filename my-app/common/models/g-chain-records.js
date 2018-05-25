@@ -1,29 +1,41 @@
 'use strict';
 var MongoClient = require('mongodb').MongoClient;
 
+//TODO handle exceptions
 module.exports = function (Gchainrecords) {
     // Connect to the db
+    var db=null;
 
-    MongoClient.connect("mongodb://localhost:17017/g-chain-records", function (err, db) {
+    MongoClient.connect("mongodb://localhost:17017/g-chain-records",{ useNewUrlParser: true }, function (err, DB) {
         if (err) throw err;
-        var db = db;
+        db = DB.db("g-chain-records");
         console.log("Connected mongoDB!");
     });
 
-    Gchainrecords.getRecords = function (patientId, organizationId, cb) {
-        var collectionsNames = this.db.collection_names();
-        var cursors = [];
-        for (let index = 0; index < collectionsNames.length; index++) {
-            const collection = this.db[collectionsNames[index]];
-            cursors.push(collection.find({ "id": patientId }))
-        }
+    Gchainrecords.getRecords = function (patientId,cb) {
+        db.listCollections().toArray(function(err, collections){
+            var cursors = [];
+            for (let index = 0; index < collections.length; index++) {
+                const collectionInfo = collections[index];
+                const collection=db.collection(collectionInfo["name"]);
+                var query = { identifier: patientId };
+                collection.find(query).toArray(function(err,result) {
+                    if (err) throw err;
+                    cursors.push(result)
+                });
+            }
+            console.log("Query done.")
+            cb(null,cursors)
+        });
     }
 
-    Gchainrecords.addRecord = function (collectionName, record, cb) {
+    Gchainrecords.addRecord = function (emr, cb) {
+        let collectionName = emr["resourceType"];
         db.collection(collectionName)
-            .insertOne(record)
+            .insertOne(emr)
             .then(function (result) {
                 console.log("Successfully added a new record.")
+                cb(null,{"info":"Successfully added a new record."})
             })
     }
 
@@ -52,19 +64,9 @@ module.exports = function (Gchainrecords) {
         },
         accepts: [
             {
-                arg: 'patientId',
-                required: true,
-                type: 'string'
-            },
-            {
                 arg: 'emr',
                 required: true,
                 type: 'Object'
-            },
-            {
-                arg: 'organizationId',
-                required: true,
-                type: 'string'
             }
         ],
         returns: {
@@ -72,5 +74,4 @@ module.exports = function (Gchainrecords) {
             type: 'Object',
         }
     });
-
 };
