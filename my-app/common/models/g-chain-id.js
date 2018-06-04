@@ -52,7 +52,7 @@ module.exports = function (Gchainid) {
   function createPatientOrgAssotiation(patientId, organizationId, patientOrgId) {
     let values={patient_id: patientId,organization_id: organizationId,patient_organization_id: patientOrgId}
     let sql = "INSERT INTO patient_organization SET ?"
-    con.query(sql,values, function (err, results,fields) {
+    return con.query(sql,values, function (err, results,fields) {
       if (err) throw err;
       console.log("Patient " + patientId + " organization " + organizationId + " association registered");
       return true;
@@ -113,6 +113,8 @@ module.exports = function (Gchainid) {
 
   Gchainid.remoteMethod('getTrustableOrgToken', {
     http: {
+      errorStatus: 400,
+      status: 200,
       path: '/getTrustableOrgToken',
       verb: 'get'
     },
@@ -136,6 +138,8 @@ module.exports = function (Gchainid) {
 
   Gchainid.remoteMethod('registerAssociationPatientOrg', {
     http: {
+      errorStatus: 400,
+      status: 200,
       path: '/registerAssociationPatientOrg',
       verb: 'post'
     },
@@ -174,6 +178,8 @@ module.exports = function (Gchainid) {
 
   Gchainid.remoteMethod('registerOrg', {
     http: {
+      errorStatus: 400,
+      status: 200,
       path: '/registerOrg',
       verb: 'post'
     },
@@ -197,6 +203,8 @@ module.exports = function (Gchainid) {
 
   Gchainid.remoteMethod('registerPatient', {
     http: {
+      errorStatus: 400,
+      status: 200,
       path: '/registerPatient',
       verb: 'post'
     },

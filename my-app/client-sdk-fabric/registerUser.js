@@ -5,13 +5,14 @@ var path = require('path');
 var util = require('util');
 var os = require('os');
 
-// var fabric_client = new Fabric_Client();
+
+// var fabric_client = new Fabric_Client(); //COMMENT TO NEW ORG????TODO
 var fabric_ca_client = null;
 var admin_user = null;
 var member_user = null;
 
 // registerObject={argPath, argCaUrl, argUser, argMspid,argAffiliation,argRole}
-function registerUser(registerObject, fabric_client){
+function registerUser(registerObject, fabric_client=new Fabric_Client()){
 
   return new Promise((resolve,reject) => {
 
@@ -34,9 +35,9 @@ function registerUser(registerObject, fabric_client){
         trustedRoots: [],
         verify: false,
       };
-      // be sure to change the http to https when the CA is running TLS enabled
+      // be sure to change the http to https when the CA is running TLS enabled TODO caname
       fabric_ca_client = new Fabric_CA_Client(registerObject.argCaUrl, null, '', crypto_suite);
-
+      
       // first check to see if the admin is already enrolled
       return fabric_client.getUserContext('admin', true);
     }).then(user_from_store => {
