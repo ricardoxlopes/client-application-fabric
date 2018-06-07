@@ -38,5 +38,8 @@
     "yarn.lock": [
       "git rm --cached"
     ]
+  },
+  "dependencies": {
+    "loadtest": "^3.0.3"
   }
 }
