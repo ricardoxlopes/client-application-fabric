@@ -6,13 +6,15 @@ import React from 'react';
 import OrganizationsList from '../containers/OrganizationsList'
 import Wallet from '../containers/Wallet'
 import RecordsList from '../containers/RecordsList'
-import { fetchInitData } from '../actions';
+import { fetchLogin } from '../actions';
 //import './App.css';
 import { connect } from 'react-redux'
+import Login from '../containers/Login'
+import Register from '../containers/Register'
 
 let requestInitialData = function (dispatch) {
   let onInit = function () {
-    dispatch(fetchInitData())
+    dispatch(fetchLogin("a","b"))
   };
   return {
     onInit
@@ -22,7 +24,7 @@ let requestInitialData = function (dispatch) {
 class App extends React.Component {
   constructor(props) {
     super(props)
-    this.handler = requestInitialData(this.props.dispatch);
+    //  this.handler = requestInitialData(this.props.dispatch);
 
     // TODO hardcoded
     // this.state = { orgs: '', channels: '', records: '', selected: 'mychannel4' };
@@ -37,7 +39,7 @@ class App extends React.Component {
   // }
 
   componentDidMount() {
-    this.handler.onInit()
+    //  this.handler.onInit()
   }
 
   // componentDidMount() {
@@ -61,37 +63,38 @@ class App extends React.Component {
 
   render() {
     return (
-      <div>
-        <nav className="navbar navbar-inverse navbar-fixed-top">
-          <div className="navbar-header">
-            <h3 style={{ 'marginLeft': '20px', 'color': 'white' }}>
-              <b>
-                <i> gChain </i>
-              </b>
-            </h3>
-          </div>
-        </nav>
-        <div className="container-fluid" style={{ 'marginTop': '50px' }}>
-          <div className="row col-sm-12 col-md-12" style={{ 'marginTop': '10px' }} >
-            <div className="col-sm-3 col-md-3">
-              <div className="col-sm-12 col-md-12" style={{ 'background': 'rgb(230,230,230)' }}>
-                <h1 className="text-center"> Private wallet </h1>
-                <Wallet />
-              </div>
-            </div>
-            <div className="col-sm-9 col-md-9">
-              <div className="col-sm-12 col-md-12">
-                <h1 style={{ 'marginLeft': '20px' }}> Organizations </h1>
-                <OrganizationsList />
-              </div>
-            </div>
-          </div>
-          <div className="row col-sm-12 col-md-12" style={{ 'marginLeft': '10px' }}>
-            <h2 className="sub-header"> Health Records </h2>
-              {/* <RecordsList /> */}
-          </div>
-        </div>
-      </div>
+      <Register />
+      // <div>
+      //   <nav className="navbar navbar-inverse navbar-fixed-top">
+      //     <div className="navbar-header">
+      //       <h3 style={{ 'marginLeft': '20px', 'color': 'white' }}>
+      //         <b>
+      //           <i> gChain </i>
+      //         </b>
+      //       </h3>
+      //     </div>
+      //   </nav>
+      //   <div className="container-fluid" style={{ 'marginTop': '50px' }}>
+      //     <div className="row col-sm-12 col-md-12" style={{ 'marginTop': '10px' }} >
+      //       <div className="col-sm-3 col-md-3">
+      //         <div className="col-sm-12 col-md-12" style={{ 'background': 'rgb(230,230,230)' }}>
+      //           <h1 className="text-center"> Private wallet </h1>
+      //           {/* <Wallet /> */}
+      //         </div>
+      //       </div>
+      //       <div className="col-sm-9 col-md-9">
+      //         <div className="col-sm-12 col-md-12">
+      //           <h1 style={{ 'marginLeft': '20px' }}> Organizations </h1>
+      //           {/* <OrganizationsList /> */}
+      //         </div>
+      //       </div>
+      //     </div>
+      //     <div className="row col-sm-12 col-md-12" style={{ 'marginLeft': '10px' }}>
+      //       <h2 className="sub-header"> Health Records </h2>
+      //         {/* <RecordsList /> */}
+      //     </div>
+      //   </div>
+      // </div>
     );
   }
 }

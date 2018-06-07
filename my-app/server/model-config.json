@@ -40,7 +40,7 @@
     "public": true
   },
   "gChainId": {
-    "dataSource": "mySqlIds",
+    "dataSource": null,
     "public": true
   },
   "gChainRecords": {

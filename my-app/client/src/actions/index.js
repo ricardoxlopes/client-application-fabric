@@ -8,13 +8,24 @@ import {
     REQUEST_INIT_DATA,
     RECEIVE_ORGS,
     SELECT_WALLET,
-    RECEIVE_WALLET
+    RECEIVE_WALLET,
+    SUBMIT_LOGIN,
+    SUBMIT_REGISTER
 } from './actionTypes'
 import fetch from 'cross-fetch'
 
 /*
  * action creators
  */
+
+export const submitLogin = () => ({
+    type: SUBMIT_LOGIN,
+})
+
+export const submitRegister = () => ({
+    type: SUBMIT_REGISTER,
+})
+
 export const transactRecord = (recordId, channelId, record) => ({
     type: TRANSACT_RECORD,
     recordId,
@@ -108,6 +119,48 @@ export const receiveOrgs = (orgs, orgsNames, channels) => ({
 //     return body.res;
 //   };
 
+export function fetchRegister(firstName,lastName,email,password) {
+
+    return function (dispatch) {
+
+        dispatch(submitRegister())
+
+        return fetch('/api/gChainIds/registerPatient', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ firstName: firstName, lastName: lastName,email: email, password: password }),
+        }).then(response => {
+            console.log(response)
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+}
+
+export function fetchLogin(email, password) {
+
+    return function (dispatch) {
+
+        dispatch(submitLogin())
+
+        return fetch('/api/gChainIds/loginPatient', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: email, password: password }),
+        }).then(response => {
+            console.log(response)
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+}
+
 export function invokeRecord(record, channel) {
 
     return function (dispatch) {
@@ -191,7 +244,7 @@ export function fetchInitData() {
             .then(data => {
                 // We can dispatch many times!
                 // Here, we update the app state with the results of the API call.
-                dispatch(receiveOrgs(data.info.orgs,data.info.orgsNames,data.info.channels))
+                dispatch(receiveOrgs(data.info.orgs, data.info.orgsNames, data.info.channels))
                 dispatch(selectOrg(data.info.walletRecords[2]))
                 dispatch(receiveWallet(data.info.walletRecords))
             }

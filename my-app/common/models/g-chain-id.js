@@ -1,30 +1,29 @@
 'use strict';
-var mysql = require('mysql');
+var mysql = require('promise-mysql');
 var fs = require('fs');
 const uuidv1 = require('uuid/v1')
 var token = require('token');
 var bcrypt = require('bcrypt');
+var rp = require('request-promise');
 
 //TODO handle exceptions
 
 module.exports = function (Gchainid) {
-  var con = mysql.createConnection("mysql://b09d80e3b40bed:0c7bf03e@eu-cdbr-west-02.cleardb.net/heroku_b8116f21146b486?reconnect=true");
+  var pool = mysql.createPool("mysql://b09d80e3b40bed:0c7bf03e@eu-cdbr-west-02.cleardb.net/heroku_b8116f21146b486?reconnect=true")
+
   //token expiring time
   token.defaults.timeStep = 24 * 60 * 60; // 24h in seconds
   token.defaults.cache = false
 
-  function verifyPatientExistence(patientId) {
-    var sql = "SELECT EXISTS(SELECT 1 FROM patient WHERE patient_id=?)"
-    return con.query(sql,[patientId], function (err, result) {
-      if (err) throw err;
-      if (result == 0)
-        return false;
-      else {
-        console.log("Patient " + patientId + " exists");
-        return true;
-      }
-    });
+  async function verifyPatientExistence(patientEmail, patientPassword) {
+    let sql = "SELECT password from patient WHERE email=?"
+    let result = await pool.query(sql, [patientEmail]);
+    if (result.length == 0)
+      return false;
+    let encryted = result[0].password;
+    return bcrypt.compareSync(patientPassword, encryted.toString());
   }
+
   function encrytPassword(password) {
     let saltRounds = 10;
 
@@ -50,40 +49,40 @@ module.exports = function (Gchainid) {
     }
   }
   function createPatientOrgAssotiation(patientId, organizationId, patientOrgId) {
-    let values={patient_id: patientId,organization_id: organizationId,patient_organization_id: patientOrgId}
+    let values = { patient_id: patientId, organization_id: organizationId, patient_organization_id: patientOrgId }
     let sql = "INSERT INTO patient_organization SET ?"
-    return con.query(sql,values, function (err, results,fields) {
+    return pool.query(sql, values, function (err, results, fields) {
       if (err) throw err;
       console.log("Patient " + patientId + " organization " + organizationId + " association registered");
       return true;
     });
   }
 
-  Gchainid.registerPatient = function (name, email, password, cb) {
+  Gchainid.registerPatient = function (firstName,lastName, email, password, cb) {
     encrytPassword(password).then(function (password) {
       let patientId = generateUUID();
-      let values={patient_id:patientId,name: name,email: email,password: password}
+      let values = { patient_id: patientId, firstName: firstName,lastName: lastName, email: email, password: password }
       let sql = "INSERT INTO patient SET ?"
-      con.query(sql, values, function (err, result) {
+      pool.query(sql, values, function (err, result) {
         if (err) throw err;
         console.log("Patient registered");
       });
     });
 
-    cb(null,{ "info": "Patient registered" })
+    cb(null, { "info": "Patient registered" })
   }
 
-  Gchainid.registerOrg = function (name,password,cb) {
+  Gchainid.registerOrg = function (name, password, cb) {
     let encrytedPassword = encrytPassword(password).then(function (password) {
-      let values={name: name,password: password}
+      let values = { name: name, password: password }
       let sql = "INSERT INTO organization SET ?"
-      con.query(sql,values, function (err, result) {
+      pool.query(sql, values, function (err, result) {
         if (err) throw err;
         console.log("Organization registered");
       });
     });
 
-    cb(null,{ "info": "Organization registered" })
+    cb(null, { "info": "Organization registered" })
   }
 
   Gchainid.getTrustableOrgToken = function (patientId, orgName, cb) {
@@ -103,12 +102,40 @@ module.exports = function (Gchainid) {
         let newUUID = generateUUID();
         //register association patient/org
         if (createPatientOrgAssotiation(patientId, orgId, newUUID))
-          cb(null,{ "info": "Patient registered successfully" })
-        else cb(null,{ "error": "Could not register patient/org association" })
-      } else cb(null,{ "error": "Invalid patient Id" })
+          cb(null, { "info": "Patient registered successfully" })
+        else cb(null, { "error": "Could not register patient/org association" })
+      } else cb(null, { "error": "Invalid patient Id" })
     } else {
       cb(null, { "error": state + " certificate." })
     }
+  }
+
+  Gchainid.loginPatient = function (email, password, cb) {
+    verifyPatientExistence(email, password).then(exists => {
+      if (exists) {
+        var options = {
+          method: 'POST',
+          uri: 'http://localhost:3001/oauth/token',
+          body: {
+            email: email,
+            password: password
+          },
+          json: true // Automatically stringifies the body to JSON
+        };
+        rp(options).then(token => {
+          console.log(token)
+          cb(null, { token: token });
+        }).catch(err => {
+          cb({ error: "Unable to login" }, null);
+        });
+      } else {
+        var error = new Error("Unable to login")
+        cb(error);
+      }
+    }).catch(err => {
+      console.log(err);
+      cb({ error: "Invalid login." }, null);
+    });
   }
 
   Gchainid.remoteMethod('getTrustableOrgToken', {
@@ -210,10 +237,40 @@ module.exports = function (Gchainid) {
     },
     accepts: [
       {
-        arg: 'name',
+        arg: 'firstName',
         required: true,
         type: 'string'
       },
+      {
+        arg: 'lastName',
+        required: true,
+        type: 'string'
+      },
+      {
+        arg: 'email',
+        required: true,
+        type: 'string'
+      },
+      {
+        arg: 'password',
+        required: true,
+        type: 'string'
+      }
+    ],
+    returns: {
+      arg: 'res',
+      type: 'Object',
+    }
+  });
+
+  Gchainid.remoteMethod('loginPatient', {
+    http: {
+      errorStatus: 400,
+      status: 200,
+      path: '/loginPatient',
+      verb: 'post'
+    },
+    accepts: [
       {
         arg: 'email',
         required: true,
