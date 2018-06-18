@@ -38,7 +38,8 @@ function queryLedger(queryObject) {
       var queriesRes = []
       return (async function loop() {
         for (let i = 0; i < queryObject.argRequests.length; i++)
-          await getChannel(queryObject, i).queryByChaincode(queryObject.argRequests[i]).then(query_responses => {
+          //TODO change 0 for i for multiple different channels
+          await getChannel(queryObject, 0).queryByChaincode(queryObject.argRequests[i]).then(query_responses => {
             console.log('Query has completed, checking results');
             // query_responses could have more than one  results if there multiple peers were used as tqueryObject.argets
             if (query_responses && query_responses.length == 1) {
@@ -46,8 +47,8 @@ function queryLedger(queryObject) {
                 reject(query_responses[0])
                 console.error('error from query = ', query_responses[0]);
               } else {
-                queriesRes.push(query_responses[0].toString())
-                console.log(query_responses[0].toString())
+                queriesRes.push(JSON.parse(query_responses[0].toString()))
+                console.log(JSON.parse(query_responses[0].toString()))
               }
             } else {
               reject(query_responses[0])
@@ -57,7 +58,7 @@ function queryLedger(queryObject) {
             reject(err)
             console.error('Failed to query successfully :: ' + err);
           });
-        resolve(JSON.parse(queriesRes))
+        resolve(queriesRes)
       })();
     })
   })

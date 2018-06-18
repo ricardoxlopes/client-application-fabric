@@ -11,6 +11,7 @@ import rootReducer from './reducers'
 import thunkMiddleware from 'redux-thunk'
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap/dist/css/bootstrap-theme.css';
+import { BrowserRouter } from 'react-router-dom'
 
 const loggerMiddleware = createLogger()
 
@@ -24,9 +25,9 @@ const store = createStore(
 )
 
 ReactDOM.render(
-    <Provider store={store}>
-        <App />
-    </Provider>,
-    document.getElementById('root'));
+  <Provider store={store}>
+      <App />
+  </Provider>,
+  document.getElementById('root'));
 
 registerServiceWorker();

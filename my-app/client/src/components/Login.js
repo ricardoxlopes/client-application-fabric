@@ -4,6 +4,7 @@ import AppBar from 'material-ui/AppBar';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
 import { BeatLoader } from 'react-spinners';
+import { Link } from 'react-router-dom'
 
 const Login = ({ onSubmit }) => {
     var email = "";
@@ -30,6 +31,7 @@ const Login = ({ onSubmit }) => {
                     />
                     <br />
                     <RaisedButton label="Submit" style={{'margin': 15}} primary={true} onClick={() => onSubmit(email, password)} />
+                    <Link to='/register'><RaisedButton label="Register"  primary={true}/></Link> 
                 </div>
             </MuiThemeProvider>
         </div>)

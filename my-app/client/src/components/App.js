@@ -3,23 +3,23 @@ import React from 'react';
 // import { SplitButton, MenuItem } from 'react-bootstrap';
 //Navbar, Jumbotron, Button,
 // import update from 'react-addons-update';
-import OrganizationsList from '../containers/OrganizationsList'
 import Wallet from '../containers/Wallet'
-import RecordsList from '../containers/RecordsList'
-import { fetchLogin } from '../actions';
 //import './App.css';
 import { connect } from 'react-redux'
 import Login from '../containers/Login'
 import Register from '../containers/Register'
+import { Switch, Route, Router } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
+import PermissionsPage from '../containers/PermissionsPage';
 
-let requestInitialData = function (dispatch) {
-  let onInit = function () {
-    dispatch(fetchLogin("a","b"))
-  };
-  return {
-    onInit
-  };
-}
+// let requestInitialData = function (dispatch) {
+//   let onInit = function () {
+//     dispatch(fetchLogin("a", "b"))
+//   };
+//   return {
+//     onInit
+//   };
+// }
 
 class App extends React.Component {
   constructor(props) {
@@ -63,7 +63,17 @@ class App extends React.Component {
 
   render() {
     return (
-      <Register />
+
+      <BrowserRouter>
+        <Switch>
+          <Route exact path='/login' children ={<Login />} />
+          <Route exact path='/register' children ={<Register />} />
+          <Route exact path='/myWallet' component ={Wallet} />
+          <Route exact path='/managePermissions' component ={PermissionsPage} />
+          {/* <Route exact path='/myPermissions' component ={Wallet} /> */}
+        </Switch>
+      </BrowserRouter>
+      // <Register />
       // <div>
       //   <nav className="navbar navbar-inverse navbar-fixed-top">
       //     <div className="navbar-header">

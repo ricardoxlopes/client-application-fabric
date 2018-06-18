@@ -1,24 +1,16 @@
 const wallet = (state = {
     isFetching: false,
-    wallet: null,
     records: [],
-    channel: null,
 }, action) => {
     switch (action.type) {
-        case 'REQUEST_INIT_DATA':
+        case 'REQUEST_RECORDS':
             return Object.assign({}, state, {
                 isFetching: true
             })
-        case 'RECEIVE_WALLET':
+        case 'RECEIVE_RECORDS':
             return Object.assign({}, state, {
                 isFetching: false,
-                wallet: action.walletInfo,
-                channel: action.walletChannel,
-                receivedAt: action.receivedAt
-            })
-        case 'SELECT_WALLET':
-            return Object.assign({}, state, {
-                isFetching: true
+                records: action.records,
             })
         default:
             return state

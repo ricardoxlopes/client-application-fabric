@@ -10,9 +10,17 @@ import {
     SELECT_WALLET,
     RECEIVE_WALLET,
     SUBMIT_LOGIN,
-    SUBMIT_REGISTER
+    SUBMIT_REGISTER,
+    MANAGE_PERMISSIONS,
+    REQUEST_ALL_PERMISSIONS,
+    RECEIVE_ALL_PERMISSIONS,
+    REQUEST_ALL_IDS,
+    RECEIVE_ALL_IDS
 } from './actionTypes'
 import fetch from 'cross-fetch'
+
+const ACCESS_TOKEN_KEY = "access_token_key"
+const ACCESS_TOKEN_EXPIRATION_TIME = "access_token_expiration_time"
 
 /*
  * action creators
@@ -25,6 +33,27 @@ export const submitLogin = () => ({
 export const submitRegister = () => ({
     type: SUBMIT_REGISTER,
 })
+
+export const managePermissions = () => ({
+    type: MANAGE_PERMISSIONS,
+})
+
+export const requestAllPermissions = () => ({
+    type: REQUEST_ALL_PERMISSIONS,
+})
+export const receiveAllPermissions = (permissions) => ({
+    type: RECEIVE_ALL_PERMISSIONS,
+    allPermissions: permissions["permissions"]
+})
+export const requestAllIds = () => ({
+    type: REQUEST_ALL_IDS,
+})
+export const receiveAllIds = (ids) => ({
+    type: RECEIVE_ALL_IDS,
+    ids: ids["ids"]
+})
+
+
 
 export const transactRecord = (recordId, channelId, record) => ({
     type: TRANSACT_RECORD,
@@ -45,7 +74,7 @@ export const requestRecords = (patientId) => ({
 })
 export const receiveRecords = (records) => ({
     type: RECEIVE_RECORDS,
-    records: JSON.parse(records),
+    records: records,
     receivedAt: Date.now()
 })
 export const selectWallet = (channel) => ({
@@ -119,7 +148,7 @@ export const receiveOrgs = (orgs, orgsNames, channels) => ({
 //     return body.res;
 //   };
 
-export function fetchRegister(firstName,lastName,email,password) {
+export function fetchRegister(firstName, lastName, email, password) {
 
     return function (dispatch) {
 
@@ -131,7 +160,7 @@ export function fetchRegister(firstName,lastName,email,password) {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ firstName: firstName, lastName: lastName,email: email, password: password }),
+            body: JSON.stringify({ firstName: firstName, lastName: lastName, email: email, password: password }),
         }).then(response => {
             console.log(response)
         }).catch(err => {
@@ -155,8 +184,61 @@ export function fetchLogin(email, password) {
             body: JSON.stringify({ email: email, password: password }),
         }).then(response => {
             console.log(response)
+            // localStorage.setItem(ACCESS_TOKEN_KEY, response.token);
+            // let whenExpires = new
+            // localStorage.setItem(ACCESS_TOKEN_EXPIRATION_TIME,expirationTime);
         }).catch(err => {
             console.log(err);
+        });
+    }
+}
+
+export function fetchAllIds(patientId) {
+
+    return function (dispatch) {
+
+        dispatch(requestAllIds())
+
+        return fetch('/api/gChainIds/getAllPrivateIds?patientId=' + patientId).then(
+            response => response.json(),
+            // Do not use catch, because that will also catch
+            // any errors in the dispatch and resulting render,
+            // causing a loop of 'Unexpected batch number' errors.
+            // https://github.com/facebook/react/issues/6895
+            error => console.log('An error occurred.', error)
+        ).then(ids => {
+            console.log(ids)
+
+            console.log(ids["ids"])
+            dispatch(receiveAllIds(ids));
+        }
+        )
+    }
+}
+
+export function fetchAllPermissions(patientIds) {
+
+    return function (dispatch) {
+
+        dispatch(requestAllPermissions())
+
+        return fetch('/api/BlockchainClis/getAllPermissions', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ patientIds: patientIds }),
+        }).then(
+            response => response.json(),
+            // Do not use catch, because that will also catch
+            // any errors in the dispatch and resulting render,
+            // causing a loop of 'Unexpected batch number' errors.
+            // https://github.com/facebook/react/issues/6895
+            error => console.log('An error occurred.', error)
+        ).then(permissions => {
+            console.log(permissions)
+            dispatch(receiveAllPermissions(permissions));
         });
     }
 }
@@ -189,31 +271,24 @@ export function invokeRecord(record, channel) {
 }
 
 
-export function fetchRecords(channel) {
+export function fetchRecords(patientId) {
 
     return function (dispatch) {
 
-        dispatch(selectOrg(channel))
-        dispatch(requestRecords(channel))
+        // dispatch(selectOrg(channel))
+        dispatch(requestRecords())
 
-        return fetch('/api/BlockchainClis/records', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ channel }
-            ),
-        })
-            .then(
-                response => response.json(),
-
-                error => console.log('An error occurred.', error)
-            )
-            .then(records => {
-                dispatch(receiveRecords(records.records))
-            }
-            )
+        return fetch('/api/gChainRecords/getRecords?patientId=' + patientId).then(
+            response => response.json(),
+            // Do not use catch, because that will also catch
+            // any errors in the dispatch and resulting render,
+            // causing a loop of 'Unexpected batch number' errors.
+            // https://github.com/facebook/react/issues/6895
+            error => console.log('An error occurred.', error)
+        ).then(data => {
+            dispatch(receiveRecords(data.records))
+        }
+        )
     }
 }
 

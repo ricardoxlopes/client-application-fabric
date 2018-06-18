@@ -4,7 +4,7 @@ import { BeatLoader } from 'react-spinners';
 
 const RecordsList = ({ records, onRecordClick }) => {
 
-    if (records.records) {
+    if (records) {
         return (
             <table className="table table-striped table-hover">
                 <thead className="thead-dark">
@@ -16,8 +16,8 @@ const RecordsList = ({ records, onRecordClick }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {records.records.map((record, index) => (
-                        <Record key={index} onClick={onRecordClick} index={index} record={record} selectedChannel={records.selectedChannel} channels={records.channels} orgsNames={records.orgsNames} />
+                    {records.map((record, index) => (
+                        <Record key={index} onClick={onRecordClick} index={index} record={record} />
                     ))}
                 </tbody>
             </table>

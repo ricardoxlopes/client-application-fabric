@@ -6,20 +6,20 @@ const invokeLedgerModule = require('../../client-sdk-fabric/invoke');
 
 module.exports = function (Blockchaincli) {
 
-  // function generateRequest(requests) {
-  //   var res = []
+  function generateRequest(requests) {
+    var res = []
 
-  //   for (let i = 0; i < requests.length; i++) {
-  //     const request = {
-  //       //targets : --- letting this default to the peers assigned to the channel
-  //       chaincodeId: requests[i].argChaincodeId,
-  //       fcn: requests[i].argFcn,
-  //       args: [requests[i].argQueryArguments]
-  //     };
-  //     res.push(request)
-  //   }
-  //   return res;
-  // };
+    for (let i = 0; i < requests.length; i++) {
+      const request = {
+        //targets : --- letting this default to the peers assigned to the channel
+        chaincodeId: requests[i].chaincodeId,
+        fcn: requests[i].fcn,
+        args: requests[i].args
+      };
+      res.push(request);
+    }
+    return res;
+  };
 
   // //valores HARCODED TODO
   // Blockchaincli.initialize = function (cb) {
@@ -170,11 +170,43 @@ module.exports = function (Blockchaincli) {
       argUser: 'user',
       argRequests: request
     };
+    console.log(queryObject)
+    enrollAdminModule.enrollAdminUser(enrollObject).then(() => {
+      return registerUserModule.registerUser(registerUserObject);
+    }).then(() => {
+      queryLedgerModule.queryLedger(queryObject).then(res => {
+        cb(null, res);
+      });
+    }).catch(err => {
+      console.error('Failed to get permissions :: ' + err);
+      cb(err, "Error")
+    });
+  }
+
+  Blockchaincli.getAllPermissions = function (patientIds, cb) {
+    var enrollObject = { argPath: 'store-Path', argCaUrl: 'http://localhost:7054', argCaName: 'ca-org1', argMspid: 'Org1MSP' };
+    var registerUserObject = { argPath: 'store-Path', argCaUrl: 'http://localhost:7054', argUser: 'user', argMspid: 'Org1MSP', argAffiliation: 'org1', argRole: 'client' };
+    var requestObject = [];
+    var patientIdsArray=patientIds["ids"];
+
+    for (let index = 0; index < patientIdsArray.length; index++)
+      requestObject.push({ chaincodeId: "mycc", fcn: "query", args: [patientIdsArray[index]] });
+
+      requests = generateRequest(requestObject);
+
+    var queryObject = {
+      argPath: 'store-Path',
+      argChannels: ["mychannel"],
+      argPeer: 'grpc://localhost:7051',
+      argUser: 'user',
+      argRequests: requests
+    };
 
     enrollAdminModule.enrollAdminUser(enrollObject).then(() => {
       return registerUserModule.registerUser(registerUserObject);
     }).then(() => {
       queryLedgerModule.queryLedger(queryObject).then(res => {
+        console.log(res)
         cb(null, res);
       });
     }).catch(err => {
@@ -208,6 +240,24 @@ module.exports = function (Blockchaincli) {
   //     type: 'string',
   //   },
   // });
+
+  Blockchaincli.remoteMethod('getAllPermissions', {
+    http: {
+      errorStatus: 400,
+      status: 200,
+      path: '/getAllPermissions',
+      verb: 'post'
+    },
+    accepts: {
+      arg: 'patientIds',
+      required: true,
+      type: 'Object'
+    },
+    returns: {
+      arg: 'permissions',
+      type: 'Object',
+    },
+  });
 
   Blockchaincli.remoteMethod('getPermission', {
     http: {
