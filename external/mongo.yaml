@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+
+  g-chain-rc:
+    image: mongo:latest
+    ports:
+      - "17017:27017"
+    volumes:
+      - ~/Desktop/g-chain-rc:/data/db
+    container_name: g-chain-rc
+      
