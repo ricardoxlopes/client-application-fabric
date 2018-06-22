@@ -6,7 +6,7 @@ var fs = require('fs');
 
 var fabric_client = new Fabric_Client();
 
-var instantiateObject = { argUser: "user2", argChannels: ["mychannel"], argPeer: "grpc://localhost:7051", argPath: "store-Path1", argChaincodeId: "mycc", argChaincodeVersion: "1.0" };
+var instantiateObject = { argUser: "patient", argChannels: ["mychannel"], argPeer: "grpc://localhost:7051", argPath: "store-Path"+"patient", argChaincodeId: "mycc", argChaincodeVersion: "1.0" };
 
 instantiateChannel(instantiateObject);
 

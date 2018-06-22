@@ -18,6 +18,7 @@ module.exports = function (Gchainid) {
     let sql = "INSERT INTO token SET ?"
     try {
       await pool.query(sql, values);
+      pool.release();
     } catch (err) {
       console.log(err)
       return false;
@@ -30,6 +31,7 @@ module.exports = function (Gchainid) {
 
     let sql = "SELECT patient_id from token WHERE token=?"
     let result = await pool.query(sql, [token]);
+    pool.release();
     if (result.length == 0)
       return { result: "invalid" };
 
@@ -39,6 +41,7 @@ module.exports = function (Gchainid) {
   async function verifyPatientExistence(patientEmail, patientPassword) {
     let sql = "SELECT password from patient WHERE email=?"
     let result = await pool.query(sql, [patientEmail]);
+    pool.release();
     if (result.length == 0)
       return false;
     let encryted = result[0].password;
@@ -72,23 +75,27 @@ module.exports = function (Gchainid) {
   function createPatientOrgAssotiation(patientId, organizationId, patientOrgId) {
     let values = { patient_id: patientId, organization_id: organizationId, patient_organization_id: patientOrgId }
     let sql = "INSERT INTO patient_organization SET ?"
-    return pool.query(sql, values, function (err, results, fields) {
+    return pool.query(sql, values,  (err, results, fields) => {
       if (err) throw err;
       console.log("Patient " + patientId + " organization " + organizationId + " association registered");
+      pool.release();
       return true;
     });
   }
 
   async function getPrivateIds(patientId) {
-    let sql = "SELECT patient_organization_id from patient_organization WHERE patient_id=?";
+    let sql = "SELECT patient_organization_id,organization_id from patient_organization WHERE patient_id=?";
     let result = await pool.query(sql, [patientId]);
+    pool.release();
     if (result.length == 0)
       return { result: "No association for patient" + patientId };
     var ids=[];
+    var orgs=[];
     for (let index = 0; index < result.length; index++) {
       ids.push(result[index].patient_organization_id)
+      orgs.push(result[index].organization_id)
     }
-    return ids;
+    return [orgs,ids];
   }
 
   Gchainid.getAllPrivateIds = function (patientId, cb) {
@@ -105,7 +112,8 @@ module.exports = function (Gchainid) {
       // let patientId = generateUUID();
       let values = { firstName: firstName, lastName: lastName, email: email, password: password }
       let sql = "INSERT INTO patient SET ?"
-      pool.query(sql, values, function (err, result) {
+      pool.query(sql, values, (err, result) => {
+        pool.release();
         if (err) throw err;
         console.log("Patient registered");
       });
@@ -118,7 +126,8 @@ module.exports = function (Gchainid) {
     let encrytedPassword = encrytPassword(password).then(function (password) {
       let values = { name: name, password: password }
       let sql = "INSERT INTO organization SET ?"
-      pool.query(sql, values, function (err, result) {
+      pool.query(sql, values, (err, result) => {
+        pool.release();
         if (err) throw err;
         console.log("Organization registered");
       });

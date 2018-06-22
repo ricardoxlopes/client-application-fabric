@@ -2,8 +2,11 @@ import React from 'react'
 import Permission from './Permission'
 import { BeatLoader } from 'react-spinners';
 
-const PermissionsList = ({ permissions, onPermissionClick }) => {
-        return (
+const PermissionsList = ({ permissions, org, onPermissionClick }) => {
+    console.log(permissions.length)
+    if (permissions.length > 0){
+
+    return (
             <table className="table table-striped table-hover">
                 <thead className="thead-dark">
                     <tr>
@@ -13,12 +16,14 @@ const PermissionsList = ({ permissions, onPermissionClick }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {permissions["permissions"].map((permission, index) => (
+                    {permissions.map((permission, index) => (
                         <Permission key={index} onClick={onPermissionClick} index={index} permission={permission} />
                     ))}
                 </tbody>
             </table>
         )
+    }else return (<h1> No permissions </h1>)
+
 }
 
 export default PermissionsList

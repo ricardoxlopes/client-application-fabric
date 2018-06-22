@@ -132,32 +132,46 @@ module.exports = function (Blockchaincli) {
   // };
 
   Blockchaincli.addPermission = function (patientId, permission, cb) {
-    console.log("Permission to invoke ", permission)
+    // console.log("Permission to invoke ", permission)
+    var storePath = 'store-Path' + patientId;
 
-    var enrollObject = { argPath: 'store-Path', argCaUrl: 'http://localhost:7054', argCaName: 'ca-org1', argMspid: 'Org1MSP' };
-    var registerUserObject = { argPath: 'store-Path', argCaUrl: 'http://localhost:7054', argUser: 'user', argMspid: 'Org1MSP', argAffiliation: 'org1', argRole: 'client' };
+    var enrollObject = { argPath: storePath, argCaUrl: 'http://localhost:15054', argCaName: 'ca-Pl', argMspid: 'Pl1MSP' };
+    var registerUserObject = { argPath: storePath, argCaUrl: 'http://localhost:15054', argUser: patientId, argMspid: 'Pl1MSP', argAffiliation: 'pl1', argRole: 'client' };
     var invokeObject = {
-      argPath: 'store-Path',
+      argPath: storePath,
       argChannel: "mychannel",
-      argPeer: 'grpc://localhost:7051',
+      argPeer: 'grpc://localhost:17051',
       argOrderer: 'grpc://localhost:7050',
-      argUser: 'user',
+      argUser: patientId,
       argChaincodeId: 'mycc',
       argFcn: 'invoke',
       argInvokeArguments: [patientId, permission],
-      argPeerEvent: 'grpc://localhost:7053'
+      argPeerEvent: 'grpc://localhost:17053'
     };
-    enrollAdminModule.enrollAdminUser(enrollObject).then(() => {
-      return registerUserModule.registerUser(registerUserObject);
-    }).then(() => {
-      invokeLedgerModule.invokeLedger(invokeObject).then(res => {
-        cb(null, res);
+
+    // enrollAdminModule.enrollAdminUser(enrollObject).then(() => {
+    //   return registerUserModule.registerUser(registerUserObject);
+    // }).then(() => {
+      invokeLedgerModule.invokeLedger(invokeObject).then((results) => {
+        // console.log('Send transaction promise and event listener promise have completed');
+        // check the results in the order the promises were added to the promise all list
+        if (results && results[0] && results[0].status === 'SUCCESS') {
+          // console.log('Successfully sent transaction to the orderer.');
+        } else {
+          console.error('Failed to order the transaction. Error code: ' + results[0].status);
+        }
+        if (results && results[1] && results[1].event_status === 'VALID') {
+          // console.log('Successfully committed the change to the ledger by the peer');
+          console.log("ok")
+          cb(null, 'Successfully committed the change to the ledger by the peer');
+        } else {
+          console.log('Transaction failed to be committed to the ledger due to ::' + results[1].event_status);
+        }
+      }).catch((err) => {
+        console.error('Failed to invoke successfully, add permissions :: ' + err);
       });
-    }).catch(err => {
-      console.error('Failed to add permissions :: ' + err);
-      cb(err, "Error")
-    });
-  };
+    // });
+  }
 
   Blockchaincli.getPermission = function (patientId, cb) {
     var enrollObject = { argPath: 'store-Path', argCaUrl: 'http://localhost:7054', argCaName: 'ca-org1', argMspid: 'Org1MSP' };
@@ -170,7 +184,6 @@ module.exports = function (Blockchaincli) {
       argUser: 'user',
       argRequests: request
     };
-    console.log(queryObject)
     enrollAdminModule.enrollAdminUser(enrollObject).then(() => {
       return registerUserModule.registerUser(registerUserObject);
     }).then(() => {
@@ -185,20 +198,20 @@ module.exports = function (Blockchaincli) {
 
   Blockchaincli.getAllPermissions = function (patientIds, cb) {
     var enrollObject = { argPath: 'store-Path', argCaUrl: 'http://localhost:7054', argCaName: 'ca-org1', argMspid: 'Org1MSP' };
-    var registerUserObject = { argPath: 'store-Path', argCaUrl: 'http://localhost:7054', argUser: 'user', argMspid: 'Org1MSP', argAffiliation: 'org1', argRole: 'client' };
+    var registerUserObject = { argPath: 'store-Path', argCaUrl: 'http://localhost:7054', argUser: 'usera', argMspid: 'Org1MSP', argAffiliation: 'org1', argRole: 'client' };
     var requestObject = [];
-    var patientIdsArray=patientIds["ids"];
+    var patientIdsArray = patientIds["ids"];
 
     for (let index = 0; index < patientIdsArray.length; index++)
       requestObject.push({ chaincodeId: "mycc", fcn: "query", args: [patientIdsArray[index]] });
 
-      requests = generateRequest(requestObject);
+    requests = generateRequest(requestObject);
 
     var queryObject = {
       argPath: 'store-Path',
       argChannels: ["mychannel"],
       argPeer: 'grpc://localhost:7051',
-      argUser: 'user',
+      argUser: 'usera',
       argRequests: requests
     };
 
@@ -208,6 +221,9 @@ module.exports = function (Blockchaincli) {
       queryLedgerModule.queryLedger(queryObject).then(res => {
         console.log(res)
         cb(null, res);
+      }).catch(err => {
+        console.error('Failed to get permissions :: ' + err);
+        cb(err, "Error")
       });
     }).catch(err => {
       console.error('Failed to get permissions :: ' + err);
@@ -291,9 +307,9 @@ module.exports = function (Blockchaincli) {
         type: 'string'
       },
       {
-        arg: 'permission',
+        arg: 'permissions',
         required: true,
-        type: 'Object'
+        type: 'array'
       }
     ],
     returns: {

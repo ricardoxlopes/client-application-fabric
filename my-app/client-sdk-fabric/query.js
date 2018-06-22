@@ -29,7 +29,7 @@ function queryLedger(queryObject) {
       return fabric_client.getUserContext(queryObject.argUser, true);
     }).then(user_from_store => {
       if (user_from_store && user_from_store.isEnrolled()) {
-        console.log('Successfully loaded ' + queryObject.argUser + ' from persistence');
+        // console.log('Successfully loaded ' + queryObject.argUser + ' from persistence');
         member_user = user_from_store;
       } else {
         reject(new Error('Failed to get user.... run registerUser.js'));
@@ -40,18 +40,19 @@ function queryLedger(queryObject) {
         for (let i = 0; i < queryObject.argRequests.length; i++)
           //TODO change 0 for i for multiple different channels
           await getChannel(queryObject, 0).queryByChaincode(queryObject.argRequests[i]).then(query_responses => {
-            console.log('Query has completed, checking results');
+            // console.log('Query has completed, checking results');
             // query_responses could have more than one  results if there multiple peers were used as tqueryObject.argets
             if (query_responses && query_responses.length == 1) {
               if (query_responses[0] instanceof Error) {
-                reject(query_responses[0])
+                queriesRes.push(query_responses[0])
                 console.error('error from query = ', query_responses[0]);
               } else {
                 queriesRes.push(JSON.parse(query_responses[0].toString()))
-                console.log(JSON.parse(query_responses[0].toString()))
+                // console.log(JSON.parse(query_responses[0].toString()))
+                console.log("OK")
               }
             } else {
-              reject(query_responses[0])
+              queriesRes.push(query_responses[0])
               console.log('No payloads were returned from query');
             }
           }).catch(err => {

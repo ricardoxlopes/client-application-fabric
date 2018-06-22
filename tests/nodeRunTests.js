@@ -2,20 +2,21 @@
 const loadtest = require('loadtest');
 const options = {
 	url: 'http://localhost:5000/api/BlockchainClis/addPermission',
-    maxRequests: 10,
-    concurrency: 1,
+    maxRequests: 20000,
+    concurrency: 5,
     method: "POST",
-    body: {"patientId":"cenas","permission":{}},
+    body: {"patientId":"patient1","permissions":[{"access":"org1","autorization":true}]},
     contentType: "application/json",
-    // statusCallback: statusCallback
+    statusCallback: statusCallback
 };
+
 const options1 = {
 	url: 'http://localhost:5000/api/BlockchainClis/getPermission?patientId=cenas',
     maxRequests: 100000,
     concurrency: 100,
     method: "GET",
     agentKeepAlive: 'Connection: Keep-alive',
-    // statusCallback: statusCallback
+    statusCallback: statusCallback
 };
 function statusCallback(error, result, latency) {
     console.log('Current latency %j, result %j, error %j', latency, result, error);
@@ -24,12 +25,12 @@ function statusCallback(error, result, latency) {
     console.log('Request index: ', result.requestIndex);
     console.log('Request loadtest() instance index: ', result.instanceIndex);
 }
-loadtest.loadTest(options1, function(error, result)
+loadtest.loadTest(options, function(error, result)
 {
 	if (error)
 	{
 		return console.error('Got an error: %s', error);
     }
-    console.log(result)
+    // console.log(result)
 	console.log('Tests run successfully');
 });

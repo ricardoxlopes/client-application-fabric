@@ -50,10 +50,9 @@ export const requestAllIds = () => ({
 })
 export const receiveAllIds = (ids) => ({
     type: RECEIVE_ALL_IDS,
-    ids: ids["ids"]
+    orgs: ids["ids"][0],
+    ids: ids["ids"][1]
 })
-
-
 
 export const transactRecord = (recordId, channelId, record) => ({
     type: TRANSACT_RECORD,
@@ -195,25 +194,25 @@ export function fetchLogin(email, password) {
 
 export function fetchAllIds(patientId) {
 
-    return function (dispatch) {
+        return function (dispatch) {
 
-        dispatch(requestAllIds())
+            dispatch(requestAllIds())
 
-        return fetch('/api/gChainIds/getAllPrivateIds?patientId=' + patientId).then(
-            response => response.json(),
-            // Do not use catch, because that will also catch
-            // any errors in the dispatch and resulting render,
-            // causing a loop of 'Unexpected batch number' errors.
-            // https://github.com/facebook/react/issues/6895
-            error => console.log('An error occurred.', error)
-        ).then(ids => {
-            console.log(ids)
-
-            console.log(ids["ids"])
-            dispatch(receiveAllIds(ids));
+            return fetch('/api/gChainIds/getAllPrivateIds?patientId=' + patientId).then(
+                response => response.json(),
+                // Do not use catch, because that will also catch
+                // any errors in the dispatch and resulting render,
+                // causing a loop of 'Unexpected batch number' errors.
+                // https://github.com/facebook/react/issues/6895
+                error => console.log('An error occurred.', error)
+            ).then(ids => {
+                console.log(ids)
+                console.log(ids["ids"])
+                dispatch(receiveAllIds(ids));
+                dispatch(fetchAllPermissions({"ids":ids["ids"][1]}))
+            }
+            )
         }
-        )
-    }
 }
 
 export function fetchAllPermissions(patientIds) {

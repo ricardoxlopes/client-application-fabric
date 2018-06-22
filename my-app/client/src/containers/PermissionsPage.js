@@ -5,7 +5,8 @@ import { bindActionCreators } from 'redux';
 
 const mapStateToProps = state => ({
   allPermissions: state.permissions.allPermissions,
-  ids: state.permissions.ids
+  ids: state.permissions.ids,
+  orgs: state.permissions.orgs
 })
 
 const mapDispatchToProps = (dispatch) => {

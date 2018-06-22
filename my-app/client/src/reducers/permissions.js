@@ -1,6 +1,7 @@
 const permissions = (state = {
     isFetching: false,
     ids: [],
+    orgs: [],
     allPermissions: []
 }, action) => {
     switch (action.type) {
@@ -21,6 +22,7 @@ const permissions = (state = {
             return Object.assign({}, state, {
                 isFetching: false,
                 ids: action.ids,
+                orgs: action.orgs
             })
         default:
             return state
