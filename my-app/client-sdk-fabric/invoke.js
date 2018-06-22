@@ -39,7 +39,7 @@ function invokeLedger(invokeObject) {
         // console.log('Successfully loaded ', invokeObject.argUser, ' from persistence');
         member_user = user_from_store;
       } else {
-        reject(new Error('Failed to get ', invokeObject.argUser, ' .... run registerUser.js'));
+        console.log('Failed to get ', invokeObject.argUser, ' .... run registerUser.js');
       }
 
       // get a transaction id object based on the current user assigned to fabric client
@@ -70,7 +70,7 @@ function invokeLedger(invokeObject) {
         // console.log('Transaction proposal was good');
       } else {
         console.error('Transaction proposal was bad');
-        reject('Transaction proposal was bad');
+        // reject('Transaction proposal was bad');
       }
       if (isProposalGood) {
         // console.log(

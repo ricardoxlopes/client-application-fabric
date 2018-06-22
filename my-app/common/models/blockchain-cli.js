@@ -149,9 +149,9 @@ module.exports = function (Blockchaincli) {
       argPeerEvent: 'grpc://localhost:17053'
     };
 
-    // enrollAdminModule.enrollAdminUser(enrollObject).then(() => {
-    //   return registerUserModule.registerUser(registerUserObject);
-    // }).then(() => {
+    enrollAdminModule.enrollAdminUser(enrollObject).then(() => {
+      return registerUserModule.registerUser(registerUserObject);
+    }).then(() => {
       invokeLedgerModule.invokeLedger(invokeObject).then((results) => {
         // console.log('Send transaction promise and event listener promise have completed');
         // check the results in the order the promises were added to the promise all list
@@ -170,18 +170,19 @@ module.exports = function (Blockchaincli) {
       }).catch((err) => {
         console.error('Failed to invoke successfully, add permissions :: ' + err);
       });
-    // });
+    });
   }
 
   Blockchaincli.getPermission = function (patientId, cb) {
-    var enrollObject = { argPath: 'store-Path', argCaUrl: 'http://localhost:7054', argCaName: 'ca-org1', argMspid: 'Org1MSP' };
-    var registerUserObject = { argPath: 'store-Path', argCaUrl: 'http://localhost:7054', argUser: 'user', argMspid: 'Org1MSP', argAffiliation: 'org1', argRole: 'client' };
+    var storePath = 'store-Path' + patientId;
+    var enrollObject = { argPath: storePath, argCaUrl: 'http://localhost:7054', argCaName: 'ca-org1', argMspid: 'Org1MSP' };
+    var registerUserObject = { argPath: storePath, argCaUrl: 'http://localhost:7054', argUser: patientId, argMspid: 'Org1MSP', argAffiliation: 'org1', argRole: 'client' };
     var request = [{ chaincodeId: "mycc", fcn: "query", args: [patientId] }];
     var queryObject = {
-      argPath: 'store-Path',
+      argPath: storePath,
       argChannels: ["mychannel"],
       argPeer: 'grpc://localhost:7051',
-      argUser: 'user',
+      argUser: patientId,
       argRequests: request
     };
     enrollAdminModule.enrollAdminUser(enrollObject).then(() => {
@@ -197,8 +198,9 @@ module.exports = function (Blockchaincli) {
   }
 
   Blockchaincli.getAllPermissions = function (patientIds, cb) {
-    var enrollObject = { argPath: 'store-Path', argCaUrl: 'http://localhost:7054', argCaName: 'ca-org1', argMspid: 'Org1MSP' };
-    var registerUserObject = { argPath: 'store-Path', argCaUrl: 'http://localhost:7054', argUser: 'usera', argMspid: 'Org1MSP', argAffiliation: 'org1', argRole: 'client' };
+    var storePath = 'store-Path' + patientId;
+    var enrollObject = { argPath: storePath, argCaUrl: 'http://localhost:7054', argCaName: 'ca-org1', argMspid: 'Org1MSP' };
+    var registerUserObject = { argPath: storePath, argCaUrl: 'http://localhost:7054', argUser: patientId, argMspid: 'Org1MSP', argAffiliation: 'org1', argRole: 'client' };
     var requestObject = [];
     var patientIdsArray = patientIds["ids"];
 
@@ -208,10 +210,10 @@ module.exports = function (Blockchaincli) {
     requests = generateRequest(requestObject);
 
     var queryObject = {
-      argPath: 'store-Path',
+      argPath: storePath,
       argChannels: ["mychannel"],
       argPeer: 'grpc://localhost:7051',
-      argUser: 'usera',
+      argUser: patientId,
       argRequests: requests
     };
 
