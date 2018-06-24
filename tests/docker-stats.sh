@@ -2,12 +2,13 @@
 
 SECONDS=0
 : "${FILENAME:=./logs/no-commands}"
-: "${TIME:=20}"
+: "${TIME:=1000000000}"
 
 while [ $SECONDS -le $TIME ]; do
-    TYPE='CPUPerc'
-    C=orderer0.example.com
-    docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
+
+    # TYPE='CPUPerc'
+    # C=orderer0.example.com
+    # docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
     # C=kafka0.example.com
     # docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
     # C=kafka0.example.com
@@ -36,6 +37,38 @@ while [ $SECONDS -le $TIME ]; do
     # docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
     # C=ca_peerOrg1
     # docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
+
+    TYPE='NetIO'
+    C=orderer0.example.com
+    docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
+    C=kafka0.example.com
+    docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
+    C=kafka0.example.com
+    docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
+    C=couchdb1
+    docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
+    C=dev-peer0.org1.example.com-mycc-1.0
+    docker stats $C0 --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
+    C=zookeeper0.example.com
+    docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
+    C=ca_peerOrg1
+    docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
+
+    TYPE='BlockIO'
+    C=orderer0.example.com
+    docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
+    C=kafka0.example.com
+    docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
+    C=kafka0.example.com
+    docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
+    C=couchdb1
+    docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
+    C=dev-peer0.org1.example.com-mycc-1.0
+    docker stats $C0 --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
+    C=zookeeper0.example.com
+    docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
+    C=ca_peerOrg1
+    docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
 
     # docker stats orderer1.example.com --format "{{.ID}}-{{.CPUPerc}}" --no-stream >> $FILENAME-CPUPerc.txt
     # docker stats kafka1.example.com --format "{{.ID}}-{{.CPUPerc}}" --no-stream >> $FILENAME-CPUPerc.txt

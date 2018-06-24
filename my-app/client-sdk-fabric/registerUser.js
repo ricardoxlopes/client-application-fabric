@@ -49,7 +49,7 @@ function registerUser(registerObject, fabric_client = new Fabric_Client()) {
     }).then(user_from_store => {
       if (user_from_store && user_from_store.isEnrolled()) {
         // console.log('Successfully loaded '+registerObject.argUser+' from persistence');
-        resolve()
+        resolve();
       } else {
         // at this point we should have the admin user
         // first need to register the user with the CA server

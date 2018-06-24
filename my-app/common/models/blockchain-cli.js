@@ -5,7 +5,6 @@ const queryLedgerModule = require('../../client-sdk-fabric/query');
 const invokeLedgerModule = require('../../client-sdk-fabric/invoke');
 
 module.exports = function (Blockchaincli) {
-
   function generateRequest(requests) {
     var res = []
 
@@ -149,9 +148,9 @@ module.exports = function (Blockchaincli) {
       argPeerEvent: 'grpc://localhost:17053'
     };
 
-    enrollAdminModule.enrollAdminUser(enrollObject).then(() => {
-      return registerUserModule.registerUser(registerUserObject);
-    }).then(() => {
+    // enrollAdminModule.enrollAdminUser(enrollObject).then(() => {
+    //   return registerUserModule.registerUser(registerUserObject);
+    // }).then(() => {
       invokeLedgerModule.invokeLedger(invokeObject).then((results) => {
         // console.log('Send transaction promise and event listener promise have completed');
         // check the results in the order the promises were added to the promise all list
@@ -159,18 +158,21 @@ module.exports = function (Blockchaincli) {
           // console.log('Successfully sent transaction to the orderer.');
         } else {
           console.error('Failed to order the transaction. Error code: ' + results[0].status);
+          cb(new Error("error"),null)
         }
         if (results && results[1] && results[1].event_status === 'VALID') {
           // console.log('Successfully committed the change to the ledger by the peer');
-          console.log("ok")
+          // console.log("ok");
           cb(null, 'Successfully committed the change to the ledger by the peer');
         } else {
           console.log('Transaction failed to be committed to the ledger due to ::' + results[1].event_status);
+          cb(new Error("error"),null)
         }
       }).catch((err) => {
         console.error('Failed to invoke successfully, add permissions :: ' + err);
+        cb(new Error("error"),null)
       });
-    });
+    // });
   }
 
   Blockchaincli.getPermission = function (patientId, cb) {
@@ -185,16 +187,16 @@ module.exports = function (Blockchaincli) {
       argUser: patientId,
       argRequests: request
     };
-    enrollAdminModule.enrollAdminUser(enrollObject).then(() => {
-      return registerUserModule.registerUser(registerUserObject);
-    }).then(() => {
+    // enrollAdminModule.enrollAdminUser(enrollObject).then(() => {
+    //   return registerUserModule.registerUser(registerUserObject);
+    // }).then(() => {
       queryLedgerModule.queryLedger(queryObject).then(res => {
         cb(null, res);
       });
-    }).catch(err => {
-      console.error('Failed to get permissions :: ' + err);
-      cb(err, "Error")
-    });
+    // }).catch(err => {
+    //   console.error('Failed to get permissions :: ' + err);
+    //   cb(err, "Error")
+    // });
   }
 
   Blockchaincli.getAllPermissions = function (patientIds, cb) {

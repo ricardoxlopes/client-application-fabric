@@ -49,7 +49,7 @@ function queryLedger(queryObject) {
               } else {
                 queriesRes.push(JSON.parse(query_responses[0].toString()))
                 // console.log(JSON.parse(query_responses[0].toString()))
-                console.log("OK")
+                // console.log("OK")
               }
             } else {
               queriesRes.push(query_responses[0])

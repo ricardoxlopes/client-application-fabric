@@ -147,9 +147,9 @@ function invokeLedger(invokeObject) {
         console.error(
           'Failed to send Proposal or receive valid response. Response null or status is not 200. exiting...'
         );
-        reject(new Error(
-          'Failed to send Proposal or receive valid response. Response null or status is not 200. exiting...'
-        ));
+        // reject(new Error(
+        //   'Failed to send Proposal or receive valid response. Response null or status is not 200. exiting...'
+        // ));
       }
     })
 };
