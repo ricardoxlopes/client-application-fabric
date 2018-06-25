@@ -9,7 +9,7 @@ while [ $SECONDS -le $TIME ]; do
     # TYPE='CPUPerc'
     # C=orderer0.example.com
     # docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
-    # C=kafka0.example.com
+    # C=peer0.org1.example.com
     # docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
     # C=kafka0.example.com
     # docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
@@ -25,7 +25,7 @@ while [ $SECONDS -le $TIME ]; do
     # TYPE='MemPerc'
     # C=orderer0.example.com
     # docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
-    # C=kafka0.example.com
+    # C=peer0.org1.example.com
     # docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
     # C=kafka0.example.com
     # docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
@@ -41,7 +41,7 @@ while [ $SECONDS -le $TIME ]; do
     TYPE='NetIO'
     C=orderer0.example.com
     docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
-    C=kafka0.example.com
+    C=peer0.org1.example.com
     docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
     C=kafka0.example.com
     docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
@@ -57,7 +57,7 @@ while [ $SECONDS -le $TIME ]; do
     TYPE='BlockIO'
     C=orderer0.example.com
     docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
-    C=kafka0.example.com
+    C=peer0.org1.example.com
     docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
     C=kafka0.example.com
     docker stats $C --format "{{.$TYPE}}" --no-stream >> $FILENAME-$C-$TYPE.txt
